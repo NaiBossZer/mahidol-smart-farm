@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
-// 1. ประกาศ Type ให้ TypeScript และ React รู้จัก Custom Element <model-viewer>
+// 1. ประกาศ Type ให้ TypeScript รู้จัก Custom Element <model-viewer> รวมถึงคุณสมบัติการเล่น Animation
 declare global {
   namespace JSX {
     interface IntrinsicElements {
@@ -19,6 +19,8 @@ declare global {
           'shadow-intensity'?: string | number;
           'ar'?: boolean | string;
           'loading'?: 'auto' | 'lazy' | 'eager';
+          'autoplay'?: boolean | string;
+          'animation-name'?: string;
         },
         HTMLElement
       >;
@@ -110,7 +112,6 @@ const weatherData = [
 
 export function HomePage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeMediaTab, setActiveMediaTab] = useState<"3d" | "video">("3d");
   const [currentSlide, setCurrentSlide] = useState(0);
 
   // ตั้งเวลาเปลี่ยนภาพสไลด์อัตโนมัติ
@@ -121,7 +122,7 @@ export function HomePage() {
     return () => clearInterval(timer);
   }, []);
 
-  // โหลดสคริปต์ตัวเล่น 3D Model Viewer อัตโนมัติและรองรับการรอโหลด
+  // โหลดสคริปต์ตัวเล่น 3D Model Viewer อัตโนมัติ
   useEffect(() => {
     const scriptId = "google-model-viewer-script";
     if (!document.getElementById(scriptId)) {
@@ -363,81 +364,8 @@ export function HomePage() {
           </div>
         </section>
 
-        {/* ==================== MEDIA SECTION: 3D DIGITAL TWIN & VIDEO ==================== */}
-        <section id="media-section" className="py-12 px-4 max-w-5xl mx-auto scroll-mt-24">
-          <div className="bg-white border border-slate-200/80 p-5 sm:p-8 rounded-3xl shadow-xl shadow-slate-200/50 space-y-6">
-
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-100 pb-4">
-              <div className="text-center sm:text-left space-y-1">
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 flex items-center gap-2">
-                  {activeMediaTab === "3d" ? "🧊 โมเดล 3 มิติแปลงเกษตรอัจฉริยะ" : "🎬 วิดีโอแนะนำฐานเรียนรู้"}
-                </h2>
-                <p className="text-xs sm:text-sm text-slate-500 font-normal">
-                  {activeMediaTab === "3d"
-                    ? "สำรวจแปลงสาธิตและตำแหน่งเซนเซอร์ IoT รอบทิศทางแบบ 360 องศาด้วยโมเดล 3 มิติ"
-                    : "รับชมภาพรวมการทำงานของระบบ IoT วัดความชื้นดินและรดน้ำอัตโนมัติ"}
-                </p>
-              </div>
-
-              <div className="flex bg-slate-100 p-1 rounded-xl font-semibold text-xs shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setActiveMediaTab("3d")}
-                  className={`px-4 py-2 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                    activeMediaTab === "3d" ? "bg-[#1B6B3C] text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  <span>🧊</span> โมเดล 3 มิติ
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveMediaTab("video")}
-                  className={`px-4 py-2 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                    activeMediaTab === "video" ? "bg-[#0A2E4D] text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  <span>🎬</span> วิดีโอแนะนำ
-                </button>
-              </div>
-            </div>
-
-            {/* แสดงผลสื่อตามแท็บที่เลือก */}
-            <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-inner min-h-[350px]">
-              {activeMediaTab === "3d" ? (
-                <div className="w-full h-full relative bg-slate-100 flex flex-col items-center justify-center">
-                  <model-viewer
-                    src="/smart-farm3d.glb"
-                    alt="โมเดล 3 มิติแปลงเกษตรอัจฉริยะ"
-                    auto-rotate
-                    camera-controls
-                    shadow-intensity="1"
-                    loading="eager"
-                    style={{ width: "100%", height: "100%", minHeight: "350px" }}
-                  >
-                    {/* fallback ระหว่างกำลังโหลด 3D */}
-                    <div slot="poster" className="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
-                      <div className="w-8 h-8 border-4 border-[#1B6B3C] border-t-transparent rounded-full animate-spin"></div>
-                      <span className="text-xs font-medium">กำลังโหลดโมเดล 3 มิติ...</span>
-                    </div>
-                  </model-viewer>
-
-                  <div className="absolute top-3 left-3 bg-[#1B6B3C]/90 backdrop-blur-md text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-white/20 pointer-events-none flex items-center gap-1.5 shadow-md z-10">
-                    <Radio className="w-3.5 h-3.5 text-[#F5B800]" /> จุดติดตั้งเซนเซอร์ทั้งหมด 12 จุด
-                  </div>
-
-                  <div className="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-normal px-3 py-1.5 rounded-lg border border-white/20 pointer-events-none flex items-center gap-1.5 shadow-md z-10">
-                    <span>🖱️</span> คลิกและลากเพื่อหมุนดูโมเดล 3 มิติแบบ 360°
-                  </div>
-                </div>
-              ) : (
-                <video className="w-full h-full object-cover" controls playsInline preload="metadata">
-                  <source src="/intro-smartfarm.mp4" type="video/mp4" />
-                </video>
-              )}
-            </div>
-
-          </div>
-        </section>
+        {/* ==================== 3D MODEL SECTION (ปรับแก้ตัดวิดีโอ + เปิดเอฟเฟกต์พ่นน้ำ/พัดลม) ==================== */}
+        <SmartFarmMediaSection />
 
         {/* Cards Grid Section */}
         <div id="cards-section" className="scroll-mt-24">
@@ -464,6 +392,74 @@ export function HomePage() {
       </footer>
 
     </div>
+  );
+}
+
+// --- COMPONENT: 3D Model Section (เปิดเอฟเฟกต์ พ่นน้ำ + พัดลมหมุน) ---
+function SmartFarmMediaSection() {
+  const [isPlayingAnimation, setIsPlayingAnimation] = useState(true);
+
+  return (
+    <section id="media-section" className="py-12 px-4 max-w-5xl mx-auto scroll-mt-24">
+      <div className="bg-white border border-slate-200/80 p-5 sm:p-8 rounded-3xl shadow-xl shadow-slate-200/50 space-y-6">
+
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div className="text-center sm:text-left space-y-1">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 flex items-center gap-2">
+              🧊 โมเดล 3 มิติแปลงเกษตรอัจฉริยะ
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 font-normal">
+              สำรวจแปลงสาธิต สภาพแวดล้อม และระบบการทำงานแบบ 360 องศา
+            </p>
+          </div>
+
+          {/* ปุ่มสวิตช์ควบคุมเอฟเฟกต์การพ่นน้ำและพัดลม */}
+          <button
+            type="button"
+            onClick={() => setIsPlayingAnimation(!isPlayingAnimation)}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold shadow-sm transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
+              isPlayingAnimation 
+                ? "bg-emerald-600 hover:bg-emerald-700 text-white" 
+                : "bg-slate-200 hover:bg-slate-300 text-slate-700"
+            }`}
+          >
+            <span className={`w-2 h-2 rounded-full ${isPlayingAnimation ? "bg-white animate-ping" : "bg-slate-400"}`} />
+            {isPlayingAnimation ? "💨 เอฟเฟกต์: กำลังทำงาน" : "⏸️ เอฟเฟกต์: หยุดทำงาน"}
+          </button>
+        </div>
+
+        {/* 3D Model Display */}
+        <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-inner min-h-[380px]">
+          <model-viewer
+            src="/smart-farm3d.glb"
+            alt="โมเดล 3 มิติแปลงเกษตรอัจฉริยะ"
+            auto-rotate
+            camera-controls
+            shadow-intensity="1"
+            loading="eager"
+            {...(isPlayingAnimation ? { autoplay: true } : {})}
+            style={{ width: "100%", height: "100%", minHeight: "380px" }}
+          >
+            {/* Fallback ระหว่างรอโหลดไฟล์ 3D */}
+            <div slot="poster" className="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
+              <div className="w-8 h-8 border-4 border-[#1B6B3C] border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-xs font-medium">กำลังโหลดโมเดล 3 มิติ...</span>
+            </div>
+          </model-viewer>
+
+          {/* Badge แสดงข้อมูลบนภาพ */}
+          <div className="absolute top-3 left-3 bg-[#1B6B3C]/90 backdrop-blur-md text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-white/20 pointer-events-none flex items-center gap-1.5 shadow-md z-10">
+            <Radio className="w-3.5 h-3.5 text-[#F5B800]" /> จุดติดตั้งเซนเซอร์ทั้งหมด 12 จุด
+          </div>
+
+          <div className="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-normal px-3 py-1.5 rounded-lg border border-white/20 pointer-events-none flex items-center gap-1.5 shadow-md z-10">
+            <span>🖱️</span> คลิกและลากเพื่อหมุนดูโมเดล 3 มิติแบบ 360°
+          </div>
+        </div>
+
+      </div>
+    </section>
   );
 }
 
