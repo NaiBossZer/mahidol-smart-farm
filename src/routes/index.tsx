@@ -1,5 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
+import {
+  Droplets, Thermometer, CloudRain, Radio, Wifi, Bell,
+  Sprout, Gauge, MapPin, ChevronLeft, ChevronRight,
+} from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -10,62 +15,82 @@ const HERO_SLIDES = [
   {
     id: 1,
     image: "/Banner 1.jpg",
-    badge: "MAHIDOL LAC LEARNING CENTER",
-    title: "ห้องเรียนรู้ครั่งครบวงจร",
+    badge: "MAHIDOL SMART FARM HUB",
+    title: "ฐานเรียนรู้เกษตรอัจฉริยะ",
     subtitle: "งานพันธกิจเพื่อสังคม คณะสิ่งแวดล้อมและทรัพยากรศาสตร์ มหาวิทยาลัยมหิดล อ.สบปราบ จ.ลำปาง",
-    buttonText: "สำรวจศูนย์เรียนรู้ 3D",
+    buttonText: "สำรวจแปลงเกษตร 3 มิติ",
     buttonLink: "#media-section",
   },
   {
     id: 2,
     image: "/Banner 2.jpg",
-    badge: "ZONE 01 // THE ORIGIN",
-    title: "กำเนิดครั่ง (The Origin)",
-    subtitle: "ประวัติศาสตร์ ภูมิปัญญาดั้งเดิม อนุกรมวิธาน และถิ่นกำเนิดแมลงครั่งในเอเชียใต้และตะวันออกเฉียงใต้",
-    buttonText: "ศึกษาเรื่องกำเนิดครั่ง",
+    badge: "ZONE 01 // SOIL MOISTURE IOT",
+    title: "เซนเซอร์วัดความชื้นดิน",
+    subtitle: "ตรวจวัดความชื้นในดินแบบเรียลไทม์ด้วยเซนเซอร์ IoT ทั่วแปลงสาธิต เพื่อการรดน้ำที่แม่นยำ",
+    buttonText: "ดูข้อมูลความชื้นดิน",
     buttonLink: "#cards-section",
   },
   {
     id: 3,
     image: "/Banner 3.jpg",
-    badge: "ZONE 02 // LIFE CYCLE",
-    title: "มหัศจรรย์วงจรชีวิต (The Life Cycle)",
-    subtitle: "เรียนรู้ชีววิทยา วงจรชีวิต ตัวอ่อน การขับชันยาง และสรีรวิทยาของแมลงครั่งอย่างครอบคลุม",
-    buttonText: "ชมวงจรชีวิตแมลงครั่ง",
+    badge: "ZONE 02 // WEATHER STATION",
+    title: "สถานีตรวจวัดสภาพอากาศ",
+    subtitle: "บันทึกอุณหภูมิ ความชื้นอากาศ และปริมาณน้ำฝนตลอด 24 ชั่วโมง เพื่อวางแผนการเพาะปลูก",
+    buttonText: "ดูข้อมูลสภาพอากาศ",
     buttonLink: "#cards-section",
   },
   {
     id: 4,
     image: "/Banner 4.jpg",
-    badge: "ZONE 03 // THE HABITATS",
-    title: "พืชอาศัยและนิเวศวิทยา (The Habitats)",
-    subtitle: "พืชอาศัยที่เหมาะแก่การเพาะเลี้ยง เช่น ต้นจามจุรี (ก้ามปู) ต้นปลัก สีเสียด พร้อมการกักเก็บคาร์บอน",
-    buttonText: "ดูข้อมูลพืชอาศัย",
+    badge: "ZONE 03 // AUTO IRRIGATION",
+    title: "ระบบรดน้ำอัตโนมัติ",
+    subtitle: "วาล์วน้ำอัจฉริยะสั่งงานอัตโนมัติตามค่าความชื้นดิน ลดการใช้น้ำและแรงงานในแปลงสาธิต",
+    buttonText: "ดูระบบรดน้ำอัตโนมัติ",
     buttonLink: "#cards-section",
   },
   {
     id: 5,
     image: "/Banner 5.jpg",
-    badge: "ZONE 04 // CULTIVATION",
-    title: "การเพาะเลี้ยงและการจัดการ",
-    subtitle: "รอบปฏิทินฤดูกาล (ฤดูร้อน/ฤดูฝน) เทคนิคการคัดแม่พันธุ์ การคุมศัตรูครั่ง และการเก็บเกี่ยวอย่างมีประสิทธิภาพ",
-    buttonText: "ดูคู่มือการเพาะเลี้ยง",
-    buttonLink: "#cards-section",
+    badge: "ZONE 04 // DIGITAL TWIN 3D",
+    title: "โมเดลแปลงเกษตร 3 มิติ",
+    subtitle: "สำรวจโครงสร้างแปลงสาธิตและตำแหน่งเซนเซอร์แบบ 360 องศาผ่านโมเดล 3 มิติเสมือนจริง",
+    buttonText: "หมุนดูโมเดล 3 มิติ",
+    buttonLink: "#media-section",
   },
   {
     id: 6,
     image: "/Banner 6.jpg",
-    badge: "ZONE 05 // PRODUCT INNOVATION",
-    title: "ครั่ง สู่ นวัตกรรมการผลิต",
-    subtitle: "การแปรรูปครั่งดิบสู่ครั่งเมล็ด เชลแลกเกรดอุตสาหกรรม สีย้อมผ้าธรรมชาติ และสารเคลือบผิวระดับสูง",
-    buttonText: "ชมนวัตกรรมแปรรูปครั่ง",
-    buttonLink: "#cards-section",
+    badge: "ZONE 05 // REALTIME DASHBOARD",
+    title: "แดชบอร์ดและการแจ้งเตือน",
+    subtitle: "ติดตามค่าจากเซนเซอร์ทุกจุดและรับการแจ้งเตือนทันทีเมื่อค่าความชื้นหรืออุณหภูมิผิดปกติ",
+    buttonText: "ดูสถิติแบบเรียลไทม์",
+    buttonLink: "#data-viz",
   },
+];
+
+// ข้อมูลแนวโน้มความชื้นดินรายชั่วโมง (ตัวอย่างข้อมูลสาธิต)
+const soilMoistureData = [
+  { time: "06:00", moisture: 68, plot: "แปลง A" },
+  { time: "09:00", moisture: 61, plot: "แปลง A" },
+  { time: "12:00", moisture: 52, plot: "แปลง A" },
+  { time: "15:00", moisture: 47, plot: "แปลง A" },
+  { time: "18:00", moisture: 58, plot: "แปลง A" },
+  { time: "21:00", moisture: 65, plot: "แปลง A" },
+];
+
+// ข้อมูลอุณหภูมิ/ความชื้นอากาศรายชั่วโมง (ตัวอย่างข้อมูลสาธิต)
+const weatherData = [
+  { time: "06:00", temp: 24, humidity: 82 },
+  { time: "09:00", temp: 28, humidity: 70 },
+  { time: "12:00", temp: 33, humidity: 55 },
+  { time: "15:00", temp: 34, humidity: 51 },
+  { time: "18:00", temp: 29, humidity: 66 },
+  { time: "21:00", temp: 25, humidity: 78 },
 ];
 
 export function HomePage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeMediaTab, setActiveMediaTab] = useState<"video" | "3d">("video");
+  const [activeMediaTab, setActiveMediaTab] = useState<"3d" | "video">("3d");
   const [currentSlide, setCurrentSlide] = useState(0);
 
   // ตั้งเวลาเปลี่ยนภาพสไลด์อัตโนมัติทุกๆ 5 วินาที
@@ -103,48 +128,48 @@ export function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-slate-800 font-['Mitr'] selection:bg-[#801818] selection:text-white flex flex-col justify-between">
-      
+    <div className="min-h-screen bg-[#FAF8F5] text-slate-800 font-['Mitr'] selection:bg-[#1B6B3C] selection:text-white flex flex-col justify-between">
+
       {/* ==================== NAVBAR ==================== */}
-      <header className="sticky top-0 z-50 bg-[#0A2E4D] text-white shadow-md border-b-2 border-[#801818]">
+      <header className="sticky top-0 z-50 bg-[#0A2E4D] text-white shadow-md border-b-2 border-[#1B6B3C]">
         <nav className="max-w-7xl mx-auto px-4 lg:px-6 py-2.5">
           <div className="flex items-center justify-between gap-4">
-            
+
             {/* ฝั่งซ้าย: โลโก้ 3 ตัว + เส้นแบ่ง + ข้อความ */}
             <div className="flex items-center gap-3 sm:gap-4 shrink-0">
               <div className="flex items-center gap-2">
                 <div className="bg-white p-1 rounded-lg h-9 sm:h-11 flex items-center justify-center shrink-0 shadow-sm">
-                  <img 
-                    src="/envi-logo.jpg" 
-                    alt="Envi Mahidol Logo" 
+                  <img
+                    src="/envi-logo.jpg"
+                    alt="Envi Mahidol Logo"
                     className="h-full object-contain"
                     onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      e.currentTarget.parentElement!.innerText = '🌍 Envi';
+                      e.currentTarget.style.display = "none";
+                      e.currentTarget.parentElement!.innerText = "🌍 Envi";
                     }}
                   />
                 </div>
 
                 <div className="bg-white p-1 rounded-lg h-9 sm:h-11 flex items-center justify-center shrink-0 shadow-sm">
-                  <img 
-                    src="/mahidol-logo.png" 
-                    alt="Mahidol University Logo" 
+                  <img
+                    src="/mahidol-logo.png"
+                    alt="Mahidol University Logo"
                     className="h-full object-contain"
                     onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      e.currentTarget.parentElement!.innerText = '🏛️ Mahidol';
+                      e.currentTarget.style.display = "none";
+                      e.currentTarget.parentElement!.innerText = "🏛️ Mahidol";
                     }}
                   />
                 </div>
 
                 <div className="bg-white p-1 rounded-lg h-9 sm:h-11 flex items-center justify-center shrink-0 shadow-sm">
-                  <img 
-                    src="/social-engagement-logo.png" 
-                    alt="Social Engagement Logo" 
+                  <img
+                    src="/social-engagement-logo.png"
+                    alt="Social Engagement Logo"
                     className="h-full object-contain"
                     onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      e.currentTarget.parentElement!.innerText = '🤝 Social';
+                      e.currentTarget.style.display = "none";
+                      e.currentTarget.parentElement!.innerText = "🤝 Social";
                     }}
                   />
                 </div>
@@ -235,9 +260,9 @@ export function HomePage() {
 
       {/* ==================== MAIN CONTENT ==================== */}
       <main className="grow">
-        
+
         {/* ==================== HERO SLIDER BANNER SECTION ==================== */}
-        <section className="relative w-full h-[460px] sm:h-[500px] lg:h-[540px] overflow-hidden bg-[#500A0A]">
+        <section className="relative w-full h-[460px] sm:h-[500px] lg:h-[540px] overflow-hidden bg-[#0B2B1E]">
           {HERO_SLIDES.map((slide, index) => (
             <div
               key={slide.id}
@@ -250,8 +275,8 @@ export function HomePage() {
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-10000 transform scale-105"
                 style={{ backgroundImage: `url('${encodeURI(slide.image)}')` }}
               >
-                {/* Gradient Overlay สีแดงครั่ง #801818 */}
-                <div className="absolute inset-0 bg-[#701414]/55 bg-gradient-to-t from-[#500A0A] via-[#801818]/60 to-black/40" />
+                {/* Gradient Overlay โทนเขียวเกษตรอัจฉริยะ */}
+                <div className="absolute inset-0 bg-[#14432E]/55 bg-gradient-to-t from-[#0B2B1E] via-[#1B6B3C]/55 to-black/40" />
               </div>
 
               {/* ข้อความกลางสไลด์ */}
@@ -265,7 +290,7 @@ export function HomePage() {
                   {slide.title}
                 </h1>
 
-                <p className="text-sm sm:text-lg text-rose-100/95 max-w-2xl font-light leading-relaxed drop-shadow">
+                <p className="text-sm sm:text-lg text-emerald-50/95 max-w-2xl font-light leading-relaxed drop-shadow">
                   {slide.subtitle}
                 </p>
 
@@ -276,7 +301,7 @@ export function HomePage() {
                       const id = slide.buttonLink.replace("#", "");
                       scrollToSection(id);
                     }}
-                    className="bg-[#801818] border border-rose-300/40 hover:bg-[#600C0C] text-white font-semibold text-xs sm:text-sm px-8 py-3.5 rounded-xl shadow-lg hover:shadow-2xl transition-all cursor-pointer flex items-center gap-2"
+                    className="bg-[#1B6B3C] border border-emerald-300/40 hover:bg-[#14512D] text-white font-semibold text-xs sm:text-sm px-8 py-3.5 rounded-xl shadow-lg hover:shadow-2xl transition-all cursor-pointer flex items-center gap-2"
                   >
                     <span>{slide.buttonText}</span>
                     <span className="text-[#F5B800] font-bold">›</span>
@@ -293,7 +318,7 @@ export function HomePage() {
             className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-black/30 hover:bg-black/60 text-white backdrop-blur-sm transition-all flex items-center justify-center cursor-pointer border border-white/20"
             aria-label="Previous Slide"
           >
-            ‹
+            <ChevronLeft className="w-5 h-5" />
           </button>
 
           {/* ปุ่มสไลด์ถัดไป (ขวา) */}
@@ -303,7 +328,7 @@ export function HomePage() {
             className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-black/30 hover:bg-black/60 text-white backdrop-blur-sm transition-all flex items-center justify-center cursor-pointer border border-white/20"
             aria-label="Next Slide"
           >
-            ›
+            <ChevronRight className="w-5 h-5" />
           </button>
 
           {/* แถบจุดเปลี่ยนสไลด์ 6 แบนเนอร์ (ด้านล่าง) */}
@@ -314,7 +339,7 @@ export function HomePage() {
                 type="button"
                 onClick={() => setCurrentSlide(idx)}
                 className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
-                  currentSlide === idx ? "w-8 bg-[#801818] border border-rose-400" : "w-2.5 bg-white/60 hover:bg-white"
+                  currentSlide === idx ? "w-8 bg-[#1B6B3C] border border-emerald-300" : "w-2.5 bg-white/60 hover:bg-white"
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />
@@ -322,25 +347,34 @@ export function HomePage() {
           </div>
         </section>
 
-        {/* ==================== MEDIA SECTION: VIDEO & 3D SKETCHUP VIEW ==================== */}
+        {/* ==================== MEDIA SECTION: 3D DIGITAL TWIN & VIDEO ==================== */}
         <section id="media-section" className="py-12 px-4 max-w-5xl mx-auto scroll-mt-24">
           <div className="bg-white border border-slate-200/80 p-5 sm:p-8 rounded-3xl shadow-xl shadow-slate-200/50 space-y-6">
-            
-            {/* ส่วนสลับแท็บ (Video VS 3D View) */}
+
+            {/* ส่วนสลับแท็บ (3D View เป็นค่าเริ่มต้น VS Video) */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-100 pb-4">
               <div className="text-center sm:text-left space-y-1">
                 <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 flex items-center gap-2">
-                  {activeMediaTab === "video" ? "🎬 วิดีโอแนะนำห้องการเรียนรู้" : "🧊 โมเดล 3D อาคารเรียนรู้ (SketchUp)"}
+                  {activeMediaTab === "3d" ? "🧊 โมเดล 3 มิติแปลงเกษตรอัจฉริยะ" : "🎬 วิดีโอแนะนำฐานเรียนรู้"}
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 font-normal">
-                  {activeMediaTab === "video" 
-                    ? "รับชมบรรยากาศและบทเรียนการเพาะเลี้ยงครั่งอย่างถูกต้อง" 
-                    : "สำรวจโครงสร้างอาคารเรียนรู้ครั่ง 360 องศาด้วยโมเดล 3D"}
+                  {activeMediaTab === "3d"
+                    ? "สำรวจแปลงสาธิตและตำแหน่งเซนเซอร์ IoT รอบทิศทางแบบ 360 องศาด้วยโมเดล 3 มิติ"
+                    : "รับชมภาพรวมการทำงานของระบบ IoT วัดความชื้นดินและรดน้ำอัตโนมัติ"}
                 </p>
               </div>
 
               {/* ปุ่มเลือกสลับสื่อ */}
               <div className="flex bg-slate-100 p-1 rounded-xl font-semibold text-xs shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setActiveMediaTab("3d")}
+                  className={`px-4 py-2 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                    activeMediaTab === "3d" ? "bg-[#1B6B3C] text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  <span>🧊</span> โมเดล 3 มิติ
+                </button>
                 <button
                   type="button"
                   onClick={() => setActiveMediaTab("video")}
@@ -350,41 +384,36 @@ export function HomePage() {
                 >
                   <span>🎬</span> วิดีโอแนะนำ
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveMediaTab("3d")}
-                  className={`px-4 py-2 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                    activeMediaTab === "3d" ? "bg-[#801818] text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
-                  }`}
-                >
-                  <span>🧊</span> โมเดล 3D SketchUp
-                </button>
               </div>
             </div>
 
             {/* แสดงผลสื่อตามแท็บที่เลือก */}
             <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 shadow-inner">
-              {activeMediaTab === "video" ? (
-                /* TAB 1: วิดีโอ */
-                <video className="w-full h-full object-cover" controls playsInline preload="metadata">
-                  <source src="/intro-lac.mp4" type="video/mp4" />
-                </video>
-              ) : (
-                /* TAB 2: โมเดล 3D (ดึงไฟล์ rac-room3d.glb ในโฟลเดอร์ public) */
+              {activeMediaTab === "3d" ? (
+                /* TAB 1: โมเดล 3D (ดึงไฟล์ smart-farm3d.glb ในโฟลเดอร์ public) */
                 <div className="w-full h-full relative bg-slate-100 flex flex-col items-center justify-center">
                   <model-viewer
-                    src="/rac-room3d.glb"
-                    alt="โมเดล 3D อาคารเรียนรู้ครั่ง"
+                    src="/smart-farm3d.glb"
+                    alt="โมเดล 3 มิติแปลงเกษตรอัจฉริยะ"
                     auto-rotate
                     camera-controls
                     shadow-intensity="1"
                     style={{ width: "100%", height: "100%" }}
                   ></model-viewer>
 
+                  <div className="absolute top-3 left-3 bg-[#1B6B3C]/90 backdrop-blur-md text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-white/20 pointer-events-none flex items-center gap-1.5 shadow-md">
+                    <Radio className="w-3.5 h-3.5 text-[#F5B800]" /> จุดติดตั้งเซนเซอร์ทั้งหมด 12 จุด
+                  </div>
+
                   <div className="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-normal px-3 py-1.5 rounded-lg border border-white/20 pointer-events-none flex items-center gap-1.5 shadow-md">
-                    <span>🖱️</span> คลิกและลากเพื่อหมุนดูโมเดล 3D แบบ 360°
+                    <span>🖱️</span> คลิกและลากเพื่อหมุนดูโมเดล 3 มิติแบบ 360°
                   </div>
                 </div>
+              ) : (
+                /* TAB 2: วิดีโอ */
+                <video className="w-full h-full object-cover" controls playsInline preload="metadata">
+                  <source src="/intro-smartfarm.mp4" type="video/mp4" />
+                </video>
               )}
             </div>
 
@@ -393,16 +422,16 @@ export function HomePage() {
 
         {/* Cards Grid Section */}
         <div id="cards-section" className="scroll-mt-24">
-          <LacKnowledgeCards />
+          <SmartFarmKnowledgeCards />
         </div>
 
         {/* Data Viz Section */}
         <div id="data-viz" className="scroll-mt-24">
-          <LacDataVisualization />
+          <SmartFarmDataVisualization />
         </div>
 
         {/* Accordion Section */}
-        <LacKnowledgeAccordion />
+        <SmartFarmAccordion />
       </main>
 
       {/* Footer */}
@@ -422,82 +451,82 @@ export function HomePage() {
 }
 
 // --- COMPONENT: Cards Grid (5 โซนหลัก) ---
-function LacKnowledgeCards() {
+function SmartFarmKnowledgeCards() {
   const [selectedCard, setSelectedCard] = useState<any | null>(null);
 
   const cards = [
     {
       id: 1,
-      icon: "📜",
-      title: "กำเนิดครั่ง (The Origin)",
-      desc: "ประวัติศาสตร์ สารชันสีแดงธรรมชาติ ภูมิปัญญา และกำเนิดแมลงครั่งในอนุกรมวิธาน",
-      tag: "โซน 1 • ประวัติศาสตร์",
-      tagBg: "bg-amber-100 text-amber-800 border-amber-200",
+      icon: <Droplets className="w-7 h-7" />,
+      title: "เซนเซอร์วัดความชื้นดิน",
+      desc: "เครือข่ายเซนเซอร์ IoT ฝังในดินตรวจวัดค่าความชื้นแบบเรียลไทม์ทั่วแปลงสาธิต",
+      tag: "โซน 1 • Soil Moisture IoT",
+      tagBg: "bg-sky-100 text-sky-800 border-sky-200",
       detail: {
-        overview: "ครั่ง คือ สารชันธรรมชาติที่ขับออกมาจากตัวแมลงครั่งเพื่อสร้างเป็นรังห่อหุ้มลำตัว มีประวัติยาวนานในงานภูมิปัญญาไทยและเอเชียใต้",
+        overview: "เซนเซอร์วัดความชื้นดินฝังอยู่ในระดับรากพืชแต่ละแปลง ส่งค่าความชื้นขึ้นสู่ระบบคลาวด์ทุก 15 นาที เพื่อให้ทราบสภาพดินที่แท้จริงโดยไม่ต้องลงพื้นที่ตรวจสอบเอง",
         highlights: [
-          "สารธรรมชาติ 100% ที่ปลอดภัยและย่อยสลายได้ง่าย",
-          "ภูมิปัญญาดั้งเดิมในงานช่างสิบหมู่ ยารักษาโรค และงานสีย้อม",
+          "ครอบคลุมความลึก 3 ระดับ (10 / 20 / 30 ซม.) ต่อจุดติดตั้ง",
+          "ส่งข้อมูลผ่านเครือข่าย LoRa ประหยัดพลังงานแบตเตอรี่ได้นานกว่า 1 ปี",
         ],
       },
     },
     {
       id: 2,
-      icon: "🐞",
-      title: "มหัศจรรย์วงจรชีวิต (Life Cycle)",
-      desc: "สรีรวิทยาแมลงครั่ง ระยะตัวอ่อน การลอกคราบ การเกาะกิ่ง และการสร้างรังชัน",
-      tag: "โซน 2 • ชีววิทยา",
-      tagBg: "bg-rose-100 text-rose-800 border-rose-200",
+      icon: <Thermometer className="w-7 h-7" />,
+      title: "สถานีตรวจวัดสภาพอากาศ",
+      desc: "บันทึกอุณหภูมิ ความชื้นสัมพัทธ์ ปริมาณน้ำฝน และความเข้มแสงตลอด 24 ชั่วโมง",
+      tag: "โซน 2 • Weather Station",
+      tagBg: "bg-amber-100 text-amber-800 border-amber-200",
       detail: {
-        overview: "แมลงครั่งมีวงจรชีวิตที่น่าทึ่ง ตัวอ่อนจะคลานออกจากรังแม่ไปเกาะกิ่งอ่อนเพื่อดูดกินน้ำเลี้ยงและขับชันห่อหุ้มตัว",
+        overview: "สถานีตรวจอากาศขนาดเล็กติดตั้งกลางแปลงสาธิต รวบรวมค่าอุณหภูมิ ความชื้นอากาศ ปริมาณน้ำฝน และความเข้มแสงแดด เพื่อใช้วางแผนการเพาะปลูกและคาดการณ์ความเสี่ยงล่วงหน้า",
         highlights: [
-          "การขับชันยางเพื่อปกป้องตนเองและขยายพันธุ์",
-          "วงจรชีวิต 2 รอบต่อปีที่สัมพันธ์กับสภาพอากาศ",
+          "แจ้งเตือนล่วงหน้าเมื่อคาดว่าจะมีฝนตกหรืออากาศร้อนจัด",
+          "เชื่อมข้อมูลกับระบบรดน้ำอัตโนมัติเพื่อลดการให้น้ำซ้ำซ้อนเมื่อฝนตก",
         ],
       },
     },
     {
       id: 3,
-      icon: "🌳",
-      title: "พืชอาศัยและนิเวศวิทยา (Habitats)",
-      desc: "ต้นไม้อาศัยที่เหมาะสม เช่น จามจุรี ปลัก สีเสียด พร้อมระบบกักเก็บคาร์บอน",
-      tag: "โซน 3 • นิเวศวิทยา",
+      icon: <Gauge className="w-7 h-7" />,
+      title: "ระบบรดน้ำอัตโนมัติ",
+      desc: "วาล์วน้ำอัจฉริยะสั่งเปิด-ปิดอัตโนมัติตามค่าความชื้นดินและสภาพอากาศ",
+      tag: "โซน 3 • Auto Irrigation",
       tagBg: "bg-emerald-100 text-emerald-800 border-emerald-200",
       detail: {
-        overview: "แมลงครั่งอาศัยกิ่งของต้นไม้เฉพาะชนิดเพื่อดูดกินน้ำเลี้ยง พืชอาศัยที่ดีต้องมีทรงพุ่มโปร่งและกิ่งอ่อนสมบูรณ์",
+        overview: "เมื่อค่าความชื้นดินต่ำกว่าเกณฑ์ที่กำหนดต่อชนิดพืช ระบบจะสั่งเปิดวาล์วรดน้ำอัตโนมัติเฉพาะจุด และปิดทันทีเมื่อความชื้นถึงระดับที่เหมาะสม ลดการใช้น้ำเกินความจำเป็น",
         highlights: [
-          "ต้นจามจุรี (ก้ามปู): โตไว ให้ผลผลิตครั่งสูงที่สุด",
-          "ต้นปลัก/สีเสียด: ทนทานสภาพอากาศแห้งแล้งได้ดีเยี่ยม",
+          "ตั้งเกณฑ์ความชื้นได้แยกตามชนิดพืชในแต่ละแปลงย่อย",
+          "ลดปริมาณการใช้น้ำเมื่อเทียบกับการรดน้ำตามตารางเวลาแบบเดิม",
         ],
       },
     },
     {
       id: 4,
-      icon: "📅",
-      title: "การเพาะเลี้ยงและการจัดการ",
-      desc: "รอบปฏิทินฤดูกาล (รอบร้อน/ฝน) เทคนิคการคัดแม่พันธุ์ และการดูแลป้องกันศัตรูครั่ง",
-      tag: "โซน 4 • การเพาะเลี้ยง",
-      tagBg: "bg-sky-100 text-sky-800 border-sky-200",
+      icon: <Bell className="w-7 h-7" />,
+      title: "แดชบอร์ดและการแจ้งเตือนเรียลไทม์",
+      desc: "รวมข้อมูลจากทุกเซนเซอร์ไว้ในหน้าจอเดียว พร้อมแจ้งเตือนทันทีเมื่อค่าผิดปกติ",
+      tag: "โซน 4 • Realtime Dashboard",
+      tagBg: "bg-rose-100 text-rose-800 border-rose-200",
       detail: {
-        overview: "การเลี้ยงครั่งแบ่งเป็น 2 รอบตามฤดูกาล การจัดการที่ดีช่วยลดอัตราการสูญเสียจากศัตรูพืช",
+        overview: "แดชบอร์ดกลางรวบรวมค่าจากเซนเซอร์ความชื้นดินและสถานีอากาศไว้ในที่เดียว แสดงกราฟย้อนหลังและส่งการแจ้งเตือนผ่านแอปพลิเคชันทันทีเมื่อค่าผิดปกติจากเกณฑ์ที่ตั้งไว้",
         highlights: [
-          "รอบฤดูร้อน: ปล่อยพันธุ์ พ.ย.-ธ.ค. เก็บเกี่ยว พ.ค.-มิ.ย.",
-          "รอบฤดูฝน: ปล่อยพันธุ์ พ.ค.-มิ.ย. เก็บเกี่ยว พ.ย.-ธ.ค.",
+          "ดูค่าย้อนหลังเปรียบเทียบระหว่างแปลงได้ในหน้าเดียว",
+          "แจ้งเตือนทันทีผ่านมือถือเมื่อความชื้นดินต่ำเกินเกณฑ์หรือระบบขัดข้อง",
         ],
       },
     },
     {
       id: 5,
-      icon: "🧪",
-      title: "ครั่ง สู่ นวัตกรรมการผลิต",
-      desc: "การแปรรูปสู่ครั่งเมล็ด เชลแลก สีย้อมผ้า สารเคลือบผิวผลไม้/ยา และน้ำล้างครั่ง",
-      tag: "โซน 5 • นวัตกรรม",
+      icon: <MapPin className="w-7 h-7" />,
+      title: "โมเดล 3 มิติแปลงเกษตรอัจฉริยะ",
+      desc: "แผนที่ดิจิทัลทวินแสดงตำแหน่งเซนเซอร์และผังแปลงจริงแบบ 360 องศา",
+      tag: "โซน 5 • Digital Twin 3D",
       tagBg: "bg-purple-100 text-purple-800 border-purple-200",
       detail: {
-        overview: "ครั่งดิบถูกนำไปแกะ บด ล้าง สกัดแยกสี เพื่อส่งต่อเข้าสู่อุตสาหกรรมมูลค่าสูง",
+        overview: "โมเดล 3 มิติจำลองผังแปลงสาธิตและตำแหน่งติดตั้งเซนเซอร์ทุกจุดตามพิกัดจริง ช่วยให้เข้าใจภาพรวมของระบบ Smart Farm ได้ง่ายกว่าการอ่านข้อมูลตัวเลขเพียงอย่างเดียว",
         highlights: [
-          "เชลแลก (Shellac): เคลือบเงาไม้ และเคลือบเม็ดยา/อาหาร",
-          "สีสกัดครั่ง: สีย้อมธรรมชาติปลอดภัยสำหรับสิ่งทอ",
+          "หมุนดูตำแหน่งเซนเซอร์และวาล์วน้ำได้รอบทิศทางแบบ 360 องศา",
+          "ใช้เป็นสื่อประกอบการอบรมเกษตรกรและผู้มาศึกษาดูงาน",
         ],
       },
     },
@@ -507,7 +536,7 @@ function LacKnowledgeCards() {
     <section className="max-w-6xl mx-auto px-4 py-12">
       <div className="text-center mb-10 space-y-2">
         <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 tracking-tight">
-          📚 โซนเรียนรู้และองค์ความรู้เรื่องครั่ง
+          📚 โซนเรียนรู้ระบบเกษตรอัจฉริยะ (Smart Farm)
         </h2>
         <p className="text-sm font-normal text-slate-500">
           คลิกที่การ์ดเพื่อเปิดอ่านรายละเอียดเชิงลึกประจำโซน
@@ -519,25 +548,25 @@ function LacKnowledgeCards() {
           <div
             key={card.id}
             onClick={() => setSelectedCard(card)}
-            className="bg-white border border-slate-200/90 p-6 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-[#801818]/30 transition-all duration-300 cursor-pointer flex flex-col justify-between space-y-5 group"
+            className="bg-white border border-slate-200/90 p-6 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-[#1B6B3C]/30 transition-all duration-300 cursor-pointer flex flex-col justify-between space-y-5 group"
           >
             <div className="space-y-3.5">
               <div className="flex items-center justify-between">
-                <span className="text-3xl w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 text-[#1B6B3C] flex items-center justify-center group-hover:scale-110 transition-transform">
                   {card.icon}
                 </span>
                 <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${card.tagBg}`}>
                   {card.tag}
                 </span>
               </div>
-              <h3 className="text-lg font-bold text-slate-800 group-hover:text-[#801818] transition-colors leading-snug">
+              <h3 className="text-lg font-bold text-slate-800 group-hover:text-[#1B6B3C] transition-colors leading-snug">
                 {card.title}
               </h3>
               <p className="text-sm font-normal leading-relaxed text-slate-600">
                 {card.desc}
               </p>
             </div>
-            <div className="text-xs font-semibold text-[#801818] flex items-center gap-1 group-hover:gap-2 transition-all pt-2 border-t border-slate-100">
+            <div className="text-xs font-semibold text-[#1B6B3C] flex items-center gap-1 group-hover:gap-2 transition-all pt-2 border-t border-slate-100">
               <span>อ่านรายละเอียดโซนนี้</span>
               <span>→</span>
             </div>
@@ -565,7 +594,7 @@ function LacKnowledgeCards() {
 
             <div className="space-y-6">
               <div className="flex items-center gap-3.5 border-b border-slate-100 pb-4">
-                <span className="text-4xl p-2 bg-slate-50 rounded-2xl border border-slate-100">{selectedCard.icon}</span>
+                <span className="text-[#1B6B3C] p-2 bg-slate-50 rounded-2xl border border-slate-100">{selectedCard.icon}</span>
                 <div>
                   <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${selectedCard.tagBg}`}>
                     {selectedCard.tag}
@@ -575,18 +604,18 @@ function LacKnowledgeCards() {
               </div>
 
               <div className="space-y-2">
-                <h4 className="text-xs font-semibold tracking-wider text-[#801818]">📌 ภาพรวมประจำโซน</h4>
+                <h4 className="text-xs font-semibold tracking-wider text-[#1B6B3C]">📌 ภาพรวมประจำโซน</h4>
                 <p className="text-sm font-normal leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-100 text-slate-700">
                   {selectedCard.detail.overview}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <h4 className="text-xs font-semibold tracking-wider text-[#2D5A27]">💡 ประเด็นสำคัญ</h4>
+                <h4 className="text-xs font-semibold tracking-wider text-[#0A2E4D]">💡 ประเด็นสำคัญ</h4>
                 <ul className="space-y-2 text-sm font-normal text-slate-700">
                   {selectedCard.detail.highlights.map((item: string, idx: number) => (
                     <li key={idx} className="flex items-start gap-2">
-                      <span className="text-[#801818] font-bold">•</span>
+                      <span className="text-[#1B6B3C] font-bold">•</span>
                       <span className="leading-relaxed">{item}</span>
                     </li>
                   ))}
@@ -596,7 +625,7 @@ function LacKnowledgeCards() {
               <button
                 type="button"
                 onClick={() => setSelectedCard(null)}
-                className="w-full bg-[#801818] hover:bg-[#600C0C] text-white font-semibold py-3 rounded-xl transition-colors cursor-pointer shadow-sm"
+                className="w-full bg-[#1B6B3C] hover:bg-[#14512D] text-white font-semibold py-3 rounded-xl transition-colors cursor-pointer shadow-sm"
               >
                 ปิดหน้าต่าง
               </button>
@@ -609,106 +638,101 @@ function LacKnowledgeCards() {
 }
 
 // --- COMPONENT: Data Visualization ---
-function LacDataVisualization() {
-  const [activeTab, setActiveTab] = useState<"farmers" | "efficiency">("farmers");
+function SmartFarmDataVisualization() {
+  const [activeTab, setActiveTab] = useState<"moisture" | "weather">("moisture");
 
   return (
     <section className="max-w-6xl mx-auto px-4 py-12 space-y-8">
       <div className="text-center space-y-2">
         <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 tracking-tight">
-          📊 สถิติและข้อมูลการผลิต จ.ลำปาง
+          📊 สถิติและข้อมูลเซนเซอร์แบบเรียลไทม์
         </h2>
         <p className="text-sm font-normal text-slate-500">
-          ข้อมูลเชิงสถิติจำนวนผู้ผลิตและพื้นที่ศักยภาพในจังหวัดลำปาง
+          ข้อมูลตัวอย่างจากเซนเซอร์ความชื้นดินและสถานีตรวจวัดสภาพอากาศประจำแปลงสาธิต
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Card 1 */}
-        <div className="bg-gradient-to-br from-rose-50 to-pink-50/50 border border-rose-200/60 p-6 rounded-2xl shadow-sm space-y-2">
-          <p className="text-xs font-semibold tracking-wider text-[#801818]">ศูนย์กลางการผลิตใหญ่สุด</p>
-          <h3 className="text-xl font-bold text-slate-800">อ.งาว (บ้านบ่อสี่เหลี่ยม)</h3>
-          <p className="text-3xl sm:text-4xl font-bold text-[#801818] pt-2">
-            300,000 <span className="text-sm font-semibold text-slate-600">กก./ปี</span>
+        <div className="bg-gradient-to-br from-sky-50 to-blue-50/50 border border-sky-200/60 p-6 rounded-2xl shadow-sm space-y-2">
+          <p className="text-xs font-semibold tracking-wider text-[#0369A1] flex items-center gap-1.5">
+            <Wifi className="w-3.5 h-3.5" /> จุดติดตั้งเซนเซอร์ทั้งหมด
+          </p>
+          <h3 className="text-xl font-bold text-slate-800">ครอบคลุม 4 แปลงสาธิต</h3>
+          <p className="text-3xl sm:text-4xl font-bold text-[#0369A1] pt-2">
+            12 <span className="text-sm font-semibold text-slate-600">จุดติดตั้ง</span>
           </p>
         </div>
 
         {/* Card 2 */}
         <div className="bg-gradient-to-br from-emerald-50 to-teal-50/50 border border-emerald-200/60 p-6 rounded-2xl shadow-sm space-y-2">
-          <p className="text-xs font-semibold tracking-wider text-[#2D5A27]">ประสิทธิภาพสูงสุด</p>
-          <h3 className="text-xl font-bold text-slate-800">อ.สบปราบ</h3>
-          <p className="text-3xl sm:text-4xl font-bold text-[#2D5A27] pt-2">
-            อันดับ 1
+          <p className="text-xs font-semibold tracking-wider text-[#1B6B3C] flex items-center gap-1.5">
+            <Droplets className="w-3.5 h-3.5" /> ประหยัดปริมาณน้ำได้
+          </p>
+          <h3 className="text-xl font-bold text-slate-800">เทียบกับรดน้ำตามตารางเวลาเดิม</h3>
+          <p className="text-3xl sm:text-4xl font-bold text-[#1B6B3C] pt-2">
+            ลดลง 30%
           </p>
         </div>
 
         {/* Card 3 */}
         <div className="bg-gradient-to-br from-amber-50 to-yellow-50/50 border border-amber-200/60 p-6 rounded-2xl shadow-sm space-y-2">
-          <p className="text-xs font-semibold tracking-wider text-amber-800">พืชอาศัยยอดนิยม</p>
-          <h3 className="text-xl font-bold text-slate-800">ต้นจามจุรี (ก้ามปู)</h3>
+          <p className="text-xs font-semibold tracking-wider text-amber-800 flex items-center gap-1.5">
+            <CloudRain className="w-3.5 h-3.5" /> ความถี่การส่งข้อมูล
+          </p>
+          <h3 className="text-xl font-bold text-slate-800">อัปเดตต่อเนื่องตลอดวัน</h3>
           <p className="text-3xl sm:text-4xl font-bold text-amber-700 pt-2">
-            TOP 1
+            ทุก 15 นาที
           </p>
         </div>
       </div>
 
       <div className="bg-white border border-slate-200/80 p-6 sm:p-8 rounded-3xl shadow-sm space-y-6">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-100 pb-4">
-          <h3 className="text-lg sm:text-xl font-bold text-slate-800">📍 อันดับพื้นที่การผลิต จ.ลำปาง</h3>
+          <h3 className="text-lg sm:text-xl font-bold text-slate-800">📍 แนวโน้มค่าเซนเซอร์รายชั่วโมง</h3>
           <div className="flex bg-slate-100 p-1 rounded-xl font-semibold text-xs">
             <button
               type="button"
-              onClick={() => setActiveTab("farmers")}
+              onClick={() => setActiveTab("moisture")}
               className={`px-3.5 py-2 rounded-lg transition-all cursor-pointer ${
-                activeTab === "farmers" ? "bg-[#801818] text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
+                activeTab === "moisture" ? "bg-[#0369A1] text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              ผู้เลี้ยงมากสุด
+              ความชื้นดิน
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab("efficiency")}
+              onClick={() => setActiveTab("weather")}
               className={`px-3.5 py-2 rounded-lg transition-all cursor-pointer ${
-                activeTab === "efficiency" ? "bg-[#2D5A27] text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
+                activeTab === "weather" ? "bg-[#1B6B3C] text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              ประสิทธิภาพสูงสุด
+              อุณหภูมิ/ความชื้นอากาศ
             </button>
           </div>
         </div>
 
-        <div className="space-y-3 font-semibold text-sm">
-          {activeTab === "farmers" ? (
-            <>
-              <div className="p-4 bg-rose-50/70 border border-rose-200/70 rounded-2xl flex justify-between items-center text-slate-800">
-                <span className="font-bold">🥇 อันดับ 1: อ.วังเหนือ</span>
-                <span className="bg-[#801818] text-white px-3 py-1 rounded-full text-xs font-medium">เกษตรกรมากที่สุด</span>
-              </div>
-              <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex justify-between items-center text-slate-700">
-                <span>🥈 อันดับ 2: อ.แจ้ห่ม</span>
-                <span className="text-xs font-normal text-slate-500">พื้นที่ยุทธศาสตร์</span>
-              </div>
-              <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex justify-between items-center text-slate-700">
-                <span>🥉 อันดับ 3: อ.เมืองปาน</span>
-                <span className="text-xs font-normal text-slate-500">พื้นที่ยุทธศาสตร์</span>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="p-4 bg-emerald-50/70 border border-emerald-200/70 rounded-2xl flex justify-between items-center text-slate-800">
-                <span className="font-bold">🥇 อันดับ 1: อ.สบปราบ</span>
-                <span className="bg-[#2D5A27] text-white px-3 py-1 rounded-full text-xs font-medium">ผลผลิต/กก.พันธุ์ สูงสุด</span>
-              </div>
-              <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex justify-between items-center text-slate-700">
-                <span>🥈 อันดับ 2: อ.เสริมงาม</span>
-                <span className="text-xs font-normal text-slate-500">อัตราการรอดสูง</span>
-              </div>
-              <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex justify-between items-center text-slate-700">
-                <span>🥉 อันดับ 3: อ.ห้างฉัตร</span>
-                <span className="text-xs font-normal text-slate-500">อัตราการรอดสูง</span>
-              </div>
-            </>
-          )}
+        <div className="h-64 sm:h-72 w-full pt-2">
+          <ResponsiveContainer width="100%" height="100%">
+            {activeTab === "moisture" ? (
+              <LineChart data={soilMoistureData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+                <XAxis dataKey="time" stroke="#64748B" style={{ fontSize: "11px", fontFamily: "Mitr, sans-serif" }} />
+                <YAxis stroke="#64748B" style={{ fontSize: "11px", fontFamily: "Mitr, sans-serif" }} unit="%" />
+                <Tooltip contentStyle={{ backgroundColor: "#FFFFFF", borderColor: "#0369A1", borderRadius: "12px", fontFamily: "Mitr, sans-serif", fontSize: "12px", color: "#1E293B", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)" }} />
+                <Line type="monotone" dataKey="moisture" name="ความชื้นดิน (%)" stroke="#0369A1" strokeWidth={2.5} dot={{ r: 3 }} />
+              </LineChart>
+            ) : (
+              <LineChart data={weatherData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+                <XAxis dataKey="time" stroke="#64748B" style={{ fontSize: "11px", fontFamily: "Mitr, sans-serif" }} />
+                <YAxis stroke="#64748B" style={{ fontSize: "11px", fontFamily: "Mitr, sans-serif" }} />
+                <Tooltip contentStyle={{ backgroundColor: "#FFFFFF", borderColor: "#1B6B3C", borderRadius: "12px", fontFamily: "Mitr, sans-serif", fontSize: "12px", color: "#1E293B", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)" }} />
+                <Line type="monotone" dataKey="temp" name="อุณหภูมิ (°C)" stroke="#D97706" strokeWidth={2.5} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="humidity" name="ความชื้นอากาศ (%)" stroke="#1B6B3C" strokeWidth={2.5} dot={{ r: 3 }} />
+              </LineChart>
+            )}
+          </ResponsiveContainer>
         </div>
       </div>
     </section>
@@ -716,21 +740,21 @@ function LacDataVisualization() {
 }
 
 // --- COMPONENT: Accordion ---
-function LacKnowledgeAccordion() {
+function SmartFarmAccordion() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   const accordions = [
     {
-      title: "🗓️ ปฏิทินและเทคนิคการเพาะเลี้ยงครั่ง",
-      content: "รอบฤดูร้อน (ปล่อย พ.ย.-ธ.ค. / เก็บ พ.ค.-มิ.ย.) และรอบฤดูฝน (ปล่อย พ.ค.-มิ.ย. / เก็บ พ.ย.-ธ.ค.)",
+      title: "💧 ระบบรดน้ำอัตโนมัติทำงานอย่างไร",
+      content: "เมื่อเซนเซอร์วัดค่าความชื้นดินต่ำกว่าเกณฑ์ที่ตั้งไว้ต่อชนิดพืช ระบบจะสั่งเปิดวาล์วน้ำเฉพาะจุดโดยอัตโนมัติ และปิดทันทีเมื่อความชื้นถึงระดับที่เหมาะสม พร้อมหยุดทำงานอัตโนมัติหากสถานีตรวจอากาศแจ้งว่ามีฝนตก",
     },
     {
-      title: "🌿 รายชื่อพืชอาศัยยอดนิยม",
-      content: "ต้นจามจุรี (ก้ามปู), ต้นปลัก, ต้นสีเสียด, กระถินเทพา, ต้นลำไย ฯลฯ",
+      title: "🌡️ สถานีตรวจอากาศเก็บข้อมูลอะไรบ้าง",
+      content: "อุณหภูมิ ความชื้นสัมพัทธ์ในอากาศ ปริมาณน้ำฝน และความเข้มแสงแดด โดยส่งข้อมูลเข้าสู่แดชบอร์ดกลางทุก 15 นาทีตลอด 24 ชั่วโมง",
     },
     {
-      title: "🏭 ผลิตภัณฑ์และการแปรรูปจากครั่ง",
-      content: "เชลแลกทาเงาไม้, สีสกัดย้อมผ้าธรรมชาติ, สารเคลือบเม็ดยา/ผลไม้ และน้ำล้างครั่งบำรุงดิน",
+      title: "🧊 โมเดล 3 มิติใช้ประโยชน์อะไรได้บ้าง",
+      content: "ใช้ดูตำแหน่งเซนเซอร์และวาล์วน้ำจริงในแปลงสาธิตแบบ 360 องศา เหมาะสำหรับการอบรมเกษตรกร ผู้มาศึกษาดูงาน และวางแผนขยายจุดติดตั้งเซนเซอร์เพิ่มเติม",
     },
   ];
 
@@ -744,7 +768,7 @@ function LacKnowledgeAccordion() {
         {accordions.map((item, index) => {
           const isOpen = openIndex === index;
           return (
-            <div key={index} className="bg-white border border-[#801818]/20 rounded-2xl overflow-hidden shadow-sm hover:border-[#801818]/40 transition-colors">
+            <div key={index} className="bg-white border border-[#1B6B3C]/20 rounded-2xl overflow-hidden shadow-sm hover:border-[#1B6B3C]/40 transition-colors">
               <button
                 type="button"
                 onClick={() => setOpenIndex(isOpen ? null : index)}
