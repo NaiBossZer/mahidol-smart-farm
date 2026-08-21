@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import {
   Droplets, Thermometer, CloudRain, Radio, Wifi, Bell,
-  Sprout, Gauge, MapPin, ChevronLeft, ChevronRight,
+  MapPin, ChevronLeft, ChevronRight, Gauge
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
@@ -70,12 +70,12 @@ const HERO_SLIDES = [
 
 // ข้อมูลแนวโน้มความชื้นดินรายชั่วโมง (ตัวอย่างข้อมูลสาธิต)
 const soilMoistureData = [
-  { time: "06:00", moisture: 68, plot: "แปลง A" },
-  { time: "09:00", moisture: 61, plot: "แปลง A" },
-  { time: "12:00", moisture: 52, plot: "แปลง A" },
-  { time: "15:00", moisture: 47, plot: "แปลง A" },
-  { time: "18:00", moisture: 58, plot: "แปลง A" },
-  { time: "21:00", moisture: 65, plot: "แปลง A" },
+  { time: "06:00", moisture: 68 },
+  { time: "09:00", moisture: 61 },
+  { time: "12:00", moisture: 52 },
+  { time: "15:00", moisture: 47 },
+  { time: "18:00", moisture: 58 },
+  { time: "21:00", moisture: 65 },
 ];
 
 // ข้อมูลอุณหภูมิ/ความชื้นอากาศรายชั่วโมง (ตัวอย่างข้อมูลสาธิต)
@@ -430,8 +430,6 @@ export function HomePage() {
           <SmartFarmDataVisualization />
         </div>
 
-        {/* Accordion Section */}
-        <SmartFarmAccordion />
       </main>
 
       {/* Footer */}
@@ -716,75 +714,29 @@ function SmartFarmDataVisualization() {
           <ResponsiveContainer width="100%" height="100%">
             {activeTab === "moisture" ? (
               <LineChart data={soilMoistureData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-                <XAxis dataKey="time" stroke="#64748B" style={{ fontSize: "11px", fontFamily: "Mitr, sans-serif" }} />
-                <YAxis stroke="#64748B" style={{ fontSize: "11px", fontFamily: "Mitr, sans-serif" }} unit="%" />
-                <Tooltip contentStyle={{ backgroundColor: "#FFFFFF", borderColor: "#0369A1", borderRadius: "12px", fontFamily: "Mitr, sans-serif", fontSize: "12px", color: "#1E293B", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)" }} />
-                <Line type="monotone" dataKey="moisture" name="ความชื้นดิน (%)" stroke="#0369A1" strokeWidth={2.5} dot={{ r: 3 }} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="time" stroke="#64748b" fontSize={12} />
+                <YAxis stroke="#64748b" fontSize={12} unit="%" />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#ffffff", borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}
+                  formatter={(value: any) => [`${value}%`, "ความชื้นดิน"]}
+                />
+                <Line type="monotone" dataKey="moisture" stroke="#0369A1" strokeWidth={3} dot={{ r: 4, fill: "#0369A1" }} activeDot={{ r: 6 }} />
               </LineChart>
             ) : (
               <LineChart data={weatherData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-                <XAxis dataKey="time" stroke="#64748B" style={{ fontSize: "11px", fontFamily: "Mitr, sans-serif" }} />
-                <YAxis stroke="#64748B" style={{ fontSize: "11px", fontFamily: "Mitr, sans-serif" }} />
-                <Tooltip contentStyle={{ backgroundColor: "#FFFFFF", borderColor: "#1B6B3C", borderRadius: "12px", fontFamily: "Mitr, sans-serif", fontSize: "12px", color: "#1E293B", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)" }} />
-                <Line type="monotone" dataKey="temp" name="อุณหภูมิ (°C)" stroke="#D97706" strokeWidth={2.5} dot={{ r: 3 }} />
-                <Line type="monotone" dataKey="humidity" name="ความชื้นอากาศ (%)" stroke="#1B6B3C" strokeWidth={2.5} dot={{ r: 3 }} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="time" stroke="#64748b" fontSize={12} />
+                <YAxis stroke="#64748b" fontSize={12} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#ffffff", borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}
+                />
+                <Line type="monotone" dataKey="temp" name="อุณหภูมิ (°C)" stroke="#e11d48" strokeWidth={2.5} dot={{ r: 4 }} />
+                <Line type="monotone" dataKey="humidity" name="ความชื้นอากาศ (%)" stroke="#1B6B3C" strokeWidth={2.5} dot={{ r: 4 }} />
               </LineChart>
             )}
           </ResponsiveContainer>
         </div>
-      </div>
-    </section>
-  );
-}
-
-// --- COMPONENT: Accordion ---
-function SmartFarmAccordion() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
-
-  const accordions = [
-    {
-      title: "💧 ระบบรดน้ำอัตโนมัติทำงานอย่างไร",
-      content: "เมื่อเซนเซอร์วัดค่าความชื้นดินต่ำกว่าเกณฑ์ที่ตั้งไว้ต่อชนิดพืช ระบบจะสั่งเปิดวาล์วน้ำเฉพาะจุดโดยอัตโนมัติ และปิดทันทีเมื่อความชื้นถึงระดับที่เหมาะสม พร้อมหยุดทำงานอัตโนมัติหากสถานีตรวจอากาศแจ้งว่ามีฝนตก",
-    },
-    {
-      title: "🌡️ สถานีตรวจอากาศเก็บข้อมูลอะไรบ้าง",
-      content: "อุณหภูมิ ความชื้นสัมพัทธ์ในอากาศ ปริมาณน้ำฝน และความเข้มแสงแดด โดยส่งข้อมูลเข้าสู่แดชบอร์ดกลางทุก 15 นาทีตลอด 24 ชั่วโมง",
-    },
-    {
-      title: "🧊 โมเดล 3 มิติใช้ประโยชน์อะไรได้บ้าง",
-      content: "ใช้ดูตำแหน่งเซนเซอร์และวาล์วน้ำจริงในแปลงสาธิตแบบ 360 องศา เหมาะสำหรับการอบรมเกษตรกร ผู้มาศึกษาดูงาน และวางแผนขยายจุดติดตั้งเซนเซอร์เพิ่มเติม",
-    },
-  ];
-
-  return (
-    <section className="max-w-4xl mx-auto px-4 py-12">
-      <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 text-center mb-6">
-        ❓ เจาะลึกรายละเอียด (FAQ)
-      </h2>
-
-      <div className="space-y-3">
-        {accordions.map((item, index) => {
-          const isOpen = openIndex === index;
-          return (
-            <div key={index} className="bg-white border border-[#1B6B3C]/20 rounded-2xl overflow-hidden shadow-sm hover:border-[#1B6B3C]/40 transition-colors">
-              <button
-                type="button"
-                onClick={() => setOpenIndex(isOpen ? null : index)}
-                className="w-full flex justify-between items-center p-4 sm:p-5 font-semibold text-slate-800 text-left cursor-pointer hover:bg-slate-50/50 transition-colors"
-              >
-                <span className="text-base sm:text-lg">{item.title}</span>
-                <span className="text-xl font-medium text-slate-400">{isOpen ? "−" : "+"}</span>
-              </button>
-              {isOpen && (
-                <div className="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/60 text-slate-700 text-sm leading-relaxed">
-                  {item.content}
-                </div>
-              )}
-            </div>
-          );
-        })}
       </div>
     </section>
   );
