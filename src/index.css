@@ -1,0 +1,11 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600;700&display=swap');
+
+@theme {
+  --font-sans: 'Mitr', sans-serif;
+}
+
+/* บังคับใช้ฟอนต์ Mitr ครอบคลุมทุกองค์ประกอบ ทุกปุ่มกด และทุกหัวข้อ */
+*, html, body, button, input, select, textarea {
+  font-family: 'Mitr', sans-serif !important;
+}
