@@ -438,7 +438,7 @@ function SmartFarmMediaSection() {
             camera-controls
             shadow-intensity="1"
             loading="eager"
-            {...(isPlayingAnimation ? { autoplay: true } : {})}
+            {...(isPlayingAnimation ? { autoplay: true, 'animation-name': '*' } : {})}
             style={{ width: "100%", height: "100%", minHeight: "380px" }}
           >
             {/* Fallback ระหว่างรอโหลดไฟล์ 3D */}
