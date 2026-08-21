@@ -726,24 +726,50 @@ function SmartFarmDataVisualization() {
           </div>
         </div>
 
-        <div className="h-64 sm:h-72 w-full pt-2">
+        <div className="h-[320px] w-full pt-4">
           <ResponsiveContainer width="100%" height="100%">
             {activeTab === "moisture" ? (
               <LineChart data={soilMoistureData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="time" stroke="#64748b" fontSize={12} />
-                <YAxis stroke="#64748b" fontSize={12} domain={[0, 100]} />
-                <Tooltip />
-                <Line type="monotone" dataKey="moisture" name="ความชื้นดิน (%)" stroke="#0369A1" strokeWidth={3} dot={{ r: 4 }} />
+                <YAxis domain={[0, 100]} stroke="#64748b" fontSize={12} unit="%" />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#0f172a", borderRadius: "12px", color: "#fff", border: "none" }}
+                  formatter={(value) => [`${value}%`, "ความชื้นในดิน"]}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="moisture"
+                  stroke="#0369A1"
+                  strokeWidth={3}
+                  dot={{ r: 5, fill: "#0369A1" }}
+                  activeDot={{ r: 8 }}
+                />
               </LineChart>
             ) : (
               <LineChart data={weatherData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="time" stroke="#64748b" fontSize={12} />
                 <YAxis stroke="#64748b" fontSize={12} />
-                <Tooltip />
-                <Line type="monotone" dataKey="temp" name="อุณหภูมิ (°C)" stroke="#1B6B3C" strokeWidth={3} dot={{ r: 4 }} />
-                <Line type="monotone" dataKey="humidity" name="ความชื้นอากาศ (%)" stroke="#F5B800" strokeWidth={2} strokeDasharray="5 5" />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "#0f172a", borderRadius: "12px", color: "#fff", border: "none" }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="temp"
+                  name="อุณหภูมิ (°C)"
+                  stroke="#e11d48"
+                  strokeWidth={3}
+                  dot={{ r: 5, fill: "#e11d48" }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="humidity"
+                  name="ความชื้นอากาศ (%)"
+                  stroke="#1B6B3C"
+                  strokeWidth={3}
+                  dot={{ r: 5, fill: "#1B6B3C" }}
+                />
               </LineChart>
             )}
           </ResponsiveContainer>
