@@ -7,7 +7,7 @@ import {
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { SmartFarm3DGame } from "@/components/SmartFarm3DGame";
 
-// 1. ประกาศ Type ให้ TypeScript รู้จัก Custom Element <model-viewer> รวมถึงคุณสมบัติการเล่น Animation
+// 1. ประกาศ Type ให้ TypeScript รู้จัก Custom Element <model-viewer>
 declare global {
   namespace JSX {
     interface IntrinsicElements {
@@ -365,10 +365,7 @@ export function HomePage() {
           </div>
         </section>
 
-        {/* ==================== 🕹️ 3D GAME WALK-AROUND SECTION (ส่วนเกมเดิน 3D) ==================== */}
-        <SmartFarm3DGame />
-
-        {/* ==================== 3D MODEL SECTION (โมเดล 3 มิติเดิม) ==================== */}
+        {/* ==================== 🧊 3D MEDIA & GAME TABS SECTION ==================== */}
         <SmartFarmMediaSection />
 
         {/* Cards Grid Section */}
@@ -399,67 +396,111 @@ export function HomePage() {
   );
 }
 
-// --- COMPONENT: 3D Model Section (เปิดเอฟเฟกต์ พ่นน้ำ + พัดลมหมุน) ---
+// --- COMPONENT: 3D Media Section (รวมโหมด 360° และ เดินชมแปลงไว้ที่เดียว) ---
 function SmartFarmMediaSection() {
+  const [activeTab, setActiveTab] = useState<"360" | "walk">("360");
   const [isPlayingAnimation, setIsPlayingAnimation] = useState(true);
 
   return (
-    <section id="media-section" className="py-12 px-4 max-w-5xl mx-auto scroll-mt-24">
-      <div className="bg-white border border-slate-200/80 p-5 sm:p-8 rounded-3xl shadow-xl shadow-slate-200/50 space-y-6">
+    <section id="media-section" className="py-12 px-4 max-w-6xl mx-auto scroll-mt-24">
+      <div className="bg-white border border-slate-200/90 p-5 sm:p-8 rounded-3xl shadow-xl shadow-slate-200/50 space-y-6">
 
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-100 pb-4">
-          <div className="text-center sm:text-left space-y-1">
+        {/* Header & Tabs Controller */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+          <div className="space-y-1">
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 flex items-center gap-2">
               🧊 โมเดล 3 มิติแปลงเกษตรอัจฉริยะ
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 font-normal">
-              สำรวจแปลงสาธิต สภาพแวดล้อม และระบบการทำงานแบบ 360 องศา
+              สำรวจแปลงสาธิต สภาพแวดล้อม และระบบการทำงานแบบ interactive
             </p>
           </div>
 
-          {/* ปุ่มสวิตช์ควบคุมเอฟเฟกต์การพ่นน้ำและพัดลม */}
-          <button
-            type="button"
-            onClick={() => setIsPlayingAnimation(!isPlayingAnimation)}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold shadow-sm transition-all cursor-pointer flex items-center gap-2 shrink-0 ${
-              isPlayingAnimation 
-                ? "bg-emerald-600 hover:bg-emerald-700 text-white" 
-                : "bg-slate-200 hover:bg-slate-300 text-slate-700"
-            }`}
-          >
-            <span className={`w-2 h-2 rounded-full ${isPlayingAnimation ? "bg-white animate-ping" : "bg-slate-400"}`} />
-            {isPlayingAnimation ? "💨 เอฟเฟกต์: กำลังทำงาน" : "⏸️ เอฟเฟกต์: หยุดทำงาน"}
-          </button>
+          {/* Toggle Switcher */}
+          <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200/70 self-stretch sm:self-auto">
+            <button
+              type="button"
+              onClick={() => setActiveTab("360")}
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                activeTab === "360"
+                  ? "bg-white text-[#1B6B3C] shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              <span>🔄</span>
+              <span>มุมมอง 360°</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("walk")}
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                activeTab === "walk"
+                  ? "bg-white text-[#1B6B3C] shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              <span>🚶‍♂️</span>
+              <span>เดินชมแปลง</span>
+            </button>
+          </div>
         </div>
 
-        {/* 3D Model Display */}
-        <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-inner min-h-[380px]">
-          <model-viewer
-            src="/smart-farm3d.glb"
-            alt="โมเดล 3 มิติแปลงเกษตรอัจฉริยะ"
-            auto-rotate
-            camera-controls
-            shadow-intensity="1"
-            loading="eager"
-            {...(isPlayingAnimation ? { autoplay: true, 'animation-name': '*' } : {})}
-            style={{ width: "100%", height: "100%", minHeight: "380px" }}
-          >
-            {/* Fallback ระหว่างรอโหลดไฟล์ 3D */}
-            <div slot="poster" className="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
-              <div className="w-8 h-8 border-4 border-[#1B6B3C] border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-xs font-medium">กำลังโหลดโมเดล 3 มิติ...</span>
+        {/* 3D Display Container */}
+        <div className="relative w-full h-[500px] sm:h-[560px] rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-inner">
+
+          {/* TAB 1: 3D MODEL VIEWER (360) */}
+          {activeTab === "360" ? (
+            <div className="w-full h-full relative">
+              <model-viewer
+                src="/smart-farm3d.glb"
+                alt="โมเดล 3 มิติแปลงเกษตรอัจฉริยะ"
+                auto-rotate
+                camera-controls
+                shadow-intensity="1"
+                loading="eager"
+                {...(isPlayingAnimation ? { autoplay: true, 'animation-name': '*' } : {})}
+                style={{ width: "100%", height: "100%" }}
+              >
+                <div slot="poster" className="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
+                  <div className="w-8 h-8 border-4 border-[#1B6B3C] border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-xs font-medium">กำลังโหลดโมเดล 3 มิติ...</span>
+                </div>
+              </model-viewer>
+
+              {/* Badge มุมซ้ายบน */}
+              <div className="absolute top-3 left-3 bg-[#1B6B3C]/90 backdrop-blur-md text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-white/20 pointer-events-none flex items-center gap-1.5 shadow-md z-10">
+                <Radio className="w-3.5 h-3.5 text-[#F5B800]" /> จุดติดตั้งเซนเซอร์ทั้งหมด 12 จุด
+              </div>
+
+              {/* ปุ่มเปิด/ปิด เอฟเฟกต์เฉพาะโหมด 360 */}
+              <div className="absolute top-3 right-3 z-10">
+                <button
+                  type="button"
+                  onClick={() => setIsPlayingAnimation(!isPlayingAnimation)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md backdrop-blur-md border transition-all cursor-pointer flex items-center gap-1.5 ${
+                    isPlayingAnimation
+                      ? "bg-emerald-700/80 hover:bg-emerald-800 text-white border-white/20"
+                      : "bg-slate-900/70 hover:bg-slate-900 text-slate-200 border-white/10"
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${isPlayingAnimation ? "bg-white animate-ping" : "bg-slate-400"}`} />
+                  {isPlayingAnimation ? "เอฟเฟกต์: เปิด" : "เอฟเฟกต์: ปิด"}
+                </button>
+              </div>
+
+              {/* Hint มุมขวาล่าง */}
+              <div className="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-normal px-3 py-1.5 rounded-lg border border-white/20 pointer-events-none flex items-center gap-1.5 shadow-md z-10">
+                <span>🖱️</span> คลิกและลากเพื่อหมุนดูโมเดล 3 มิติแบบ 360°
+              </div>
             </div>
-          </model-viewer>
+          ) : (
+            /* TAB 2: WALKTHROUGH 3D GAME */
+            <div className="w-full h-full relative">
+              <SmartFarm3DGame />
+            </div>
+          )}
 
-          {/* Badge แสดงข้อมูลบนภาพ */}
-          <div className="absolute top-3 left-3 bg-[#1B6B3C]/90 backdrop-blur-md text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg border border-white/20 pointer-events-none flex items-center gap-1.5 shadow-md z-10">
-            <Radio className="w-3.5 h-3.5 text-[#F5B800]" /> จุดติดตั้งเซนเซอร์ทั้งหมด 12 จุด
-          </div>
-
-          <div className="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-normal px-3 py-1.5 rounded-lg border border-white/20 pointer-events-none flex items-center gap-1.5 shadow-md z-10">
-            <span>🖱️</span> คลิกและลากเพื่อหมุนดูโมเดล 3 มิติแบบ 360°
-          </div>
         </div>
 
       </div>
@@ -735,41 +776,19 @@ function SmartFarmDataVisualization() {
                 <YAxis domain={[0, 100]} stroke="#64748b" fontSize={12} unit="%" />
                 <Tooltip
                   contentStyle={{ backgroundColor: "#0f172a", borderRadius: "12px", color: "#fff", border: "none" }}
-                  formatter={(value) => [`${value}%`, "ความชื้นในดิน"]}
                 />
-                <Line
-                  type="monotone"
-                  dataKey="moisture"
-                  stroke="#0369A1"
-                  strokeWidth={3}
-                  dot={{ r: 5, fill: "#0369A1" }}
-                  activeDot={{ r: 8 }}
-                />
+                <Line type="monotone" dataKey="moisture" stroke="#0369A1" strokeWidth={3} dot={{ r: 4 }} name="ความชื้นดิน (%)" />
               </LineChart>
             ) : (
               <LineChart data={weatherData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="time" stroke="#64748b" fontSize={12} />
-                <YAxis stroke="#64748b" fontSize={12} />
+                <YAxis domain={[0, 100]} stroke="#64748b" fontSize={12} />
                 <Tooltip
                   contentStyle={{ backgroundColor: "#0f172a", borderRadius: "12px", color: "#fff", border: "none" }}
                 />
-                <Line
-                  type="monotone"
-                  dataKey="temp"
-                  name="อุณหภูมิ (°C)"
-                  stroke="#e11d48"
-                  strokeWidth={3}
-                  dot={{ r: 5, fill: "#e11d48" }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="humidity"
-                  name="ความชื้นอากาศ (%)"
-                  stroke="#1B6B3C"
-                  strokeWidth={3}
-                  dot={{ r: 5, fill: "#1B6B3C" }}
-                />
+                <Line type="monotone" dataKey="temp" stroke="#f59e0b" strokeWidth={3} dot={{ r: 4 }} name="อุณหภูมิ (°C)" />
+                <Line type="monotone" dataKey="humidity" stroke="#1B6B3C" strokeWidth={3} dot={{ r: 4 }} name="ความชื้นอากาศ (%)" />
               </LineChart>
             )}
           </ResponsiveContainer>
