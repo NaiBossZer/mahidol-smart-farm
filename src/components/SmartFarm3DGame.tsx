@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, Suspense, Component, ErrorInfo, ReactNode, useMemo } from 'react';
 import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
-import { Sky, Center, useAnimations } from '@react-three/drei';
+import { Sky, Center } from '@react-three/drei';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
@@ -13,7 +13,6 @@ const FARM_MODEL_PATH = '/smart-farm3d.glb';
 const createCustomGLTFLoader = (loader: THREE.Loader) => {
   if (loader instanceof GLTFLoader) {
     const dracoLoader = new DRACOLoader();
-    // ใช้ CDN Decoder ของ Google สำหรับการ Decode Draco Mesh
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
     loader.setDRACOLoader(dracoLoader);
   }
@@ -139,55 +138,49 @@ interface CharacterModelProps {
 
 function CharacterModel({ isMoving }: CharacterModelProps) {
   const gltf = useLoader(GLTFLoader, PLAYER_MODEL_PATH, createCustomGLTFLoader);
-  const { actions, names } = useAnimations(gltf.animations, gltf.scene);
+  const mixer = useMemo(() => new THREE.AnimationMixer(gltf.scene), [gltf.scene]);
 
-  const adjustedScene = useMemo(() => {
-    const clone = gltf.scene.clone(true);
-
-    const box = new THREE.Box3().setFromObject(clone);
+  // ตั้งค่าขนาดและเปิดเงาโดยไม่โคลนฉากเพื่อรักษาการผูกกระดูก (Skelton Rigging)
+  const scaleFactor = useMemo(() => {
+    const box = new THREE.Box3().setFromObject(gltf.scene);
     const size = new THREE.Vector3();
     box.getSize(size);
 
     const maxDim = Math.max(size.x, size.y, size.z);
-    if (maxDim > 0) {
-      const targetScale = 1.8 / maxDim;
-      clone.scale.setScalar(targetScale);
-    }
-
-    clone.traverse((child) => {
+    
+    gltf.scene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         child.castShadow = true;
         child.receiveShadow = true;
       }
     });
 
-    return clone;
+    return maxDim > 0 ? 1.8 / maxDim : 1;
   }, [gltf]);
 
-  // ระบบเล่น Animation ตามสถานะการเดิน
+  // สั่งเล่น Animation จากไฟล์
   useEffect(() => {
-    if (!names || names.length === 0) return;
+    if (!gltf.animations || gltf.animations.length === 0) return;
 
-    // หาแอนิเมชันท่าเดินหรือวิ่ง
-    const walkAnim = names.find((n) => /walk|run|move/i.test(n)) || names[1] || names[0];
-    // หาแอนิเมชันท่ายืนนิ่ง
-    const idleAnim = names.find((n) => /idle|stand|pose/i.test(n)) || names[0];
-
-    const targetActionName = isMoving ? walkAnim : idleAnim;
-    const currentAction = actions[targetActionName];
-
-    if (currentAction) {
-      currentAction.reset().fadeIn(0.2).play();
-    }
+    // เล่นคลิปแอนิเมชัน
+    const action = mixer.clipAction(gltf.animations[0]);
+    action.reset().fadeIn(0.2).play();
 
     return () => {
-      if (currentAction) currentAction.fadeOut(0.2);
+      action.fadeOut(0.2);
     };
-  }, [isMoving, actions, names]);
+  }, [gltf, mixer]);
+
+  // อัปเดตการขยับเฟรมแอนิเมชันตลอดเวลา
+  useFrame((_, delta) => {
+    mixer.update(delta);
+  });
 
   return (
     <Center top>
-      <primitive object={adjustedScene} />
+      <group scale={scaleFactor}>
+        <primitive object={gltf.scene} />
+      </group>
     </Center>
   );
 }
