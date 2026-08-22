@@ -5,6 +5,7 @@ import {
   MapPin, ChevronLeft, ChevronRight, Gauge
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { SmartFarm3DGame } from "@/components/SmartFarm3DGame";
 
 // 1. ประกาศ Type ให้ TypeScript รู้จัก Custom Element <model-viewer> รวมถึงคุณสมบัติการเล่น Animation
 declare global {
@@ -364,7 +365,10 @@ export function HomePage() {
           </div>
         </section>
 
-        {/* ==================== 3D MODEL SECTION (ปรับแก้ตัดวิดีโอ + เปิดเอฟเฟกต์พ่นน้ำ/พัดลม) ==================== */}
+        {/* ==================== 🕹️ 3D GAME WALK-AROUND SECTION (ส่วนเกมเดิน 3D) ==================== */}
+        <SmartFarm3DGame />
+
+        {/* ==================== 3D MODEL SECTION (โมเดล 3 มิติเดิม) ==================== */}
         <SmartFarmMediaSection />
 
         {/* Cards Grid Section */}
