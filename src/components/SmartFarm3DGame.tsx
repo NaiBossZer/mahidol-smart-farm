@@ -1,24 +1,20 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, Suspense } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Sky, useGLTF, Center } from '@react-three/drei';
 import * as THREE from 'three';
 import { Maximize2, Minimize2, Eye, User } from 'lucide-react';
 
 // --------------------------------------------------
-// 1. Smart Farm Model (พร้อมระบบจัดตำแหน่งและย่อ-ขยายอัตโนมัติ)
+// 1. Smart Farm Model
 // --------------------------------------------------
 function SmartFarmModel() {
   const { scene } = useGLTF('/smart-farm3d.glb');
-
   return (
     <Center position={[0, 0, 0]} top>
       <primitive object={scene} />
     </Center>
   );
 }
-
-useGLTF.preload('/smart-farm3d.glb');
-useGLTF.preload('/player.glb');
 
 // --------------------------------------------------
 // 2. Camera Controller
@@ -73,19 +69,31 @@ function CharacterCameraController({ characterRef, cameraMode }: CharacterCamera
 }
 
 // --------------------------------------------------
-// 3. Character & Movement (ปรับปรุงเป็นโมเดล Pixar + โค้ดขยับอนิเมชัน)
+// 3. Character & Movement
 // --------------------------------------------------
 interface CharacterProps {
   playerRef: React.RefObject<THREE.Group | null>;
   activeControls: { forward: boolean; backward: boolean; left: boolean; right: boolean };
 }
 
+function CharacterModel() {
+  const { scene } = useGLTF('/player.glb');
+  return <primitive object={scene} scale={[1, 1, 1]} position={[0, 0, 0]} />;
+}
+
+// โมเดลสำรองเผื่อไฟล์ player.glb มีปัญหา เว็บจะไม่ดับ
+function FallbackPlayer() {
+  return (
+    <mesh position={[0, 1, 0]}>
+      <capsuleGeometry args={[0.4, 1, 4, 8]} />
+      <meshStandardMaterial color="#3b82f6" />
+    </mesh>
+  );
+}
+
 function Character({ playerRef, activeControls }: CharacterProps) {
   const keys = useRef<{ [key: string]: boolean }>({});
   const animGroupRef = useRef<THREE.Group>(null);
-  
-  // โหลดโมเดลตัวละคร Pixar จากโฟลเดอร์ public/player.glb
-  const { scene } = useGLTF('/player.glb');
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => { keys.current[e.code] = true; };
@@ -115,18 +123,14 @@ function Character({ playerRef, activeControls }: CharacterProps) {
     if (isForward) playerRef.current.translateZ(moveSpeed);
     if (isBackward) playerRef.current.translateZ(-moveSpeed);
 
-    // --- ระบบอนิเมชันเคลื่อนไหวด้วยโค้ด (Procedural Animation) ---
     const isMoving = isForward || isBackward || isLeft || isRight;
 
     if (animGroupRef.current) {
       if (isMoving) {
-        // 1. จังหวะเด้งขึ้นลงขณะเดิน (Bobbing Effect)
         animGroupRef.current.position.y = Math.abs(Math.sin(state.clock.elapsedTime * 12)) * 0.12;
-        // 2. เอียงตัวซ้าย-ขวาเบาๆ ดุ๊กดิ๊กสไตล์การ์ตูน
         animGroupRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 12) * 0.06;
-        animGroupRef.current.rotation.x = 0.05; // โน้มตัวไปข้างหน้าเล็กน้อย
+        animGroupRef.current.rotation.x = 0.05;
       } else {
-        // ท่ายืนนิ่ง (Idle Effect): หายใจขึ้นลงช้าๆ
         animGroupRef.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.02;
         animGroupRef.current.rotation.z = THREE.MathUtils.lerp(animGroupRef.current.rotation.z, 0, 0.1);
         animGroupRef.current.rotation.x = THREE.MathUtils.lerp(animGroupRef.current.rotation.x, 0, 0.1);
@@ -136,13 +140,10 @@ function Character({ playerRef, activeControls }: CharacterProps) {
 
   return (
     <group ref={playerRef} position={[0, 0, 8]}>
-      {/* ซ้อน Group นี้ไว้สำหรับใส่เอฟเฟกต์อนิเมชันเด้งตัว/เอียงตัว */}
       <group ref={animGroupRef}>
-        <primitive 
-          object={scene} 
-          scale={[1, 1, 1]} // ปรับย่อ/ขยายโมเดลตรงนี้ได้หากใหญ่หรือเล็กไป
-          position={[0, 0, 0]} 
-        />
+        <Suspense fallback={<FallbackPlayer />}>
+          <CharacterModel />
+        </Suspense>
       </group>
     </group>
   );
@@ -296,11 +297,10 @@ export function SmartFarm3DGame() {
           <meshStandardMaterial color="#166534" />
         </mesh>
 
-        {/* โหลดโมเดลฟาร์มและตัวละคร */}
-        <React.Suspense fallback={null}>
+        <Suspense fallback={null}>
           <SmartFarmModel />
           <Character playerRef={playerRef} activeControls={touchControls} />
-        </React.Suspense>
+        </Suspense>
 
         <CharacterCameraController characterRef={playerRef} cameraMode={cameraMode} />
       </Canvas>
