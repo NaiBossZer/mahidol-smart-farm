@@ -11,7 +11,6 @@ function SmartFarmModel() {
   const { scene } = useGLTF('/smart-farm3d.glb');
 
   return (
-    // Center จะดึงโมเดลมาไว้อยู่ตรงกลางฉาก [0,0,0] พอดี ไม่ว่าโมเดลเดิมจะลอยไปไหน
     <Center position={[0, 0, 0]} top>
       <primitive object={scene} />
     </Center>
@@ -19,6 +18,7 @@ function SmartFarmModel() {
 }
 
 useGLTF.preload('/smart-farm3d.glb');
+useGLTF.preload('/player.glb');
 
 // --------------------------------------------------
 // 2. Camera Controller
@@ -73,7 +73,7 @@ function CharacterCameraController({ characterRef, cameraMode }: CharacterCamera
 }
 
 // --------------------------------------------------
-// 3. Character & Movement
+// 3. Character & Movement (ปรับปรุงเป็นโมเดล Pixar + โค้ดขยับอนิเมชัน)
 // --------------------------------------------------
 interface CharacterProps {
   playerRef: React.RefObject<THREE.Group | null>;
@@ -82,6 +82,10 @@ interface CharacterProps {
 
 function Character({ playerRef, activeControls }: CharacterProps) {
   const keys = useRef<{ [key: string]: boolean }>({});
+  const animGroupRef = useRef<THREE.Group>(null);
+  
+  // โหลดโมเดลตัวละคร Pixar จากโฟลเดอร์ public/player.glb
+  const { scene } = useGLTF('/player.glb');
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => { keys.current[e.code] = true; };
@@ -95,7 +99,7 @@ function Character({ playerRef, activeControls }: CharacterProps) {
     };
   }, []);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (!playerRef.current) return;
 
     const moveSpeed = 6 * delta;
@@ -110,18 +114,36 @@ function Character({ playerRef, activeControls }: CharacterProps) {
     if (isRight) playerRef.current.rotation.y -= rotateSpeed;
     if (isForward) playerRef.current.translateZ(moveSpeed);
     if (isBackward) playerRef.current.translateZ(-moveSpeed);
+
+    // --- ระบบอนิเมชันเคลื่อนไหวด้วยโค้ด (Procedural Animation) ---
+    const isMoving = isForward || isBackward || isLeft || isRight;
+
+    if (animGroupRef.current) {
+      if (isMoving) {
+        // 1. จังหวะเด้งขึ้นลงขณะเดิน (Bobbing Effect)
+        animGroupRef.current.position.y = Math.abs(Math.sin(state.clock.elapsedTime * 12)) * 0.12;
+        // 2. เอียงตัวซ้าย-ขวาเบาๆ ดุ๊กดิ๊กสไตล์การ์ตูน
+        animGroupRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 12) * 0.06;
+        animGroupRef.current.rotation.x = 0.05; // โน้มตัวไปข้างหน้าเล็กน้อย
+      } else {
+        // ท่ายืนนิ่ง (Idle Effect): หายใจขึ้นลงช้าๆ
+        animGroupRef.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.02;
+        animGroupRef.current.rotation.z = THREE.MathUtils.lerp(animGroupRef.current.rotation.z, 0, 0.1);
+        animGroupRef.current.rotation.x = THREE.MathUtils.lerp(animGroupRef.current.rotation.x, 0, 0.1);
+      }
+    }
   });
 
   return (
     <group ref={playerRef} position={[0, 0, 8]}>
-      <mesh position={[0, 0.8, 0]} castShadow>
-        <capsuleGeometry args={[0.3, 0.8, 4, 8]} />
-        <meshStandardMaterial color="#2563eb" />
-      </mesh>
-      <mesh position={[0, 1.3, 0.15]} castShadow>
-        <boxGeometry args={[0.25, 0.12, 0.12]} />
-        <meshStandardMaterial color="#0f172a" />
-      </mesh>
+      {/* ซ้อน Group นี้ไว้สำหรับใส่เอฟเฟกต์อนิเมชันเด้งตัว/เอียงตัว */}
+      <group ref={animGroupRef}>
+        <primitive 
+          object={scene} 
+          scale={[1, 1, 1]} // ปรับย่อ/ขยายโมเดลตรงนี้ได้หากใหญ่หรือเล็กไป
+          position={[0, 0, 0]} 
+        />
+      </group>
     </group>
   );
 }
@@ -274,12 +296,12 @@ export function SmartFarm3DGame() {
           <meshStandardMaterial color="#166534" />
         </mesh>
 
-        {/* โหลดโมเดลจริงพร้อมจัดตำแหน่งกึ่งกลาง */}
+        {/* โหลดโมเดลฟาร์มและตัวละคร */}
         <React.Suspense fallback={null}>
           <SmartFarmModel />
+          <Character playerRef={playerRef} activeControls={touchControls} />
         </React.Suspense>
 
-        <Character playerRef={playerRef} activeControls={touchControls} />
         <CharacterCameraController characterRef={playerRef} cameraMode={cameraMode} />
       </Canvas>
     </div>
