@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, Suspense, Component, ErrorInfo, ReactNode, useMemo } from 'react';
 import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
-import { Sky, Center } from '@react-three/drei';
+import { Sky, Center, useAnimations } from '@react-three/drei';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
@@ -133,8 +133,13 @@ interface CharacterProps {
   activeControls: { forward: boolean; backward: boolean; left: boolean; right: boolean };
 }
 
-function CharacterModel() {
+interface CharacterModelProps {
+  isMoving: boolean;
+}
+
+function CharacterModel({ isMoving }: CharacterModelProps) {
   const gltf = useLoader(GLTFLoader, PLAYER_MODEL_PATH, createCustomGLTFLoader);
+  const { actions, names } = useAnimations(gltf.animations, gltf.scene);
 
   const adjustedScene = useMemo(() => {
     const clone = gltf.scene.clone(true);
@@ -159,6 +164,27 @@ function CharacterModel() {
     return clone;
   }, [gltf]);
 
+  // ระบบเล่น Animation ตามสถานะการเดิน
+  useEffect(() => {
+    if (!names || names.length === 0) return;
+
+    // หาแอนิเมชันท่าเดินหรือวิ่ง
+    const walkAnim = names.find((n) => /walk|run|move/i.test(n)) || names[1] || names[0];
+    // หาแอนิเมชันท่ายืนนิ่ง
+    const idleAnim = names.find((n) => /idle|stand|pose/i.test(n)) || names[0];
+
+    const targetActionName = isMoving ? walkAnim : idleAnim;
+    const currentAction = actions[targetActionName];
+
+    if (currentAction) {
+      currentAction.reset().fadeIn(0.2).play();
+    }
+
+    return () => {
+      if (currentAction) currentAction.fadeOut(0.2);
+    };
+  }, [isMoving, actions, names]);
+
   return (
     <Center top>
       <primitive object={adjustedScene} />
@@ -177,7 +203,7 @@ function FallbackPlayer() {
 
 function Character({ playerRef, activeControls }: CharacterProps) {
   const keys = useRef<{ [key: string]: boolean }>({});
-  const animGroupRef = useRef<THREE.Group>(null);
+  const [isMoving, setIsMoving] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => { keys.current[e.code] = true; };
@@ -191,7 +217,7 @@ function Character({ playerRef, activeControls }: CharacterProps) {
     };
   }, []);
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (!playerRef.current) return;
 
     const moveSpeed = 6 * delta;
@@ -207,30 +233,19 @@ function Character({ playerRef, activeControls }: CharacterProps) {
     if (isForward) playerRef.current.translateZ(moveSpeed);
     if (isBackward) playerRef.current.translateZ(-moveSpeed);
 
-    const isMoving = isForward || isBackward || isLeft || isRight;
-
-    if (animGroupRef.current) {
-      if (isMoving) {
-        animGroupRef.current.position.y = Math.abs(Math.sin(state.clock.elapsedTime * 12)) * 0.12;
-        animGroupRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 12) * 0.06;
-        animGroupRef.current.rotation.x = 0.05;
-      } else {
-        animGroupRef.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.02;
-        animGroupRef.current.rotation.z = THREE.MathUtils.lerp(animGroupRef.current.rotation.z, 0, 0.1);
-        animGroupRef.current.rotation.x = THREE.MathUtils.lerp(animGroupRef.current.rotation.x, 0, 0.1);
-      }
+    const moving = isForward || isBackward || isLeft || isRight;
+    if (moving !== isMoving) {
+      setIsMoving(moving);
     }
   });
 
   return (
     <group ref={playerRef} position={[0, 0, 8]}>
-      <group ref={animGroupRef}>
-        <ThreeErrorBoundary fallback={<FallbackPlayer />}>
-          <Suspense fallback={<FallbackPlayer />}>
-            <CharacterModel />
-          </Suspense>
-        </ThreeErrorBoundary>
-      </group>
+      <ThreeErrorBoundary fallback={<FallbackPlayer />}>
+        <Suspense fallback={<FallbackPlayer />}>
+          <CharacterModel isMoving={isMoving} />
+        </Suspense>
+      </ThreeErrorBoundary>
     </group>
   );
 }
