@@ -4,11 +4,15 @@ import { Sky, useGLTF, Center } from '@react-three/drei';
 import * as THREE from 'three';
 import { Maximize2, Minimize2, Eye, User } from 'lucide-react';
 
+// Import ไฟล์ GLB จากโฟลเดอร์ public หรือ src ตรงๆ เพื่อให้ Vercel หาไฟล์เจอ 100%
+import farmModelPath from '/public/smart-farm3d.glb?url';
+import playerModelPath from '/public/player.glb?url';
+
 // --------------------------------------------------
 // 1. Smart Farm Model
 // --------------------------------------------------
 function SmartFarmModel() {
-  const { scene } = useGLTF('/smart-farm3d.glb');
+  const { scene } = useGLTF(farmModelPath);
   return (
     <Center position={[0, 0, 0]} top>
       <primitive object={scene} />
@@ -77,11 +81,11 @@ interface CharacterProps {
 }
 
 function CharacterModel() {
-  const { scene } = useGLTF('/player.glb');
+  const { scene } = useGLTF(playerModelPath);
   return <primitive object={scene} scale={[1, 1, 1]} position={[0, 0, 0]} />;
 }
 
-// โมเดลสำรองเผื่อไฟล์ player.glb มีปัญหา เว็บจะไม่ดับ
+// ตัวละครสำรองทรงแคปซูล ป้องกันหน้าจอสีดำกรณีโมเดลมีปัญหา
 function FallbackPlayer() {
   return (
     <mesh position={[0, 1, 0]}>
