@@ -1,8 +1,12 @@
 import React, { useRef, useState, useEffect, Suspense, Component, ErrorInfo, ReactNode, useMemo } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
 import { Sky, useGLTF, Center } from '@react-three/drei';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Maximize2, Minimize2, Eye, User } from 'lucide-react';
+
+const PLAYER_MODEL_PATH = '/player.glb';
+const FARM_MODEL_PATH = '/smart-farm3d.glb';
 
 // --------------------------------------------------
 // Error Boundary
@@ -24,7 +28,7 @@ class ThreeErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('3D Loading Error:', error, errorInfo);
+    console.error('❌ [3D Loader Error]:', error, errorInfo);
   }
 
   public render() {
@@ -39,9 +43,9 @@ class ThreeErrorBoundary extends Component<Props, State> {
 // 1. Smart Farm Model
 // --------------------------------------------------
 function SmartFarmModel() {
-  const { scene } = useGLTF(`${import.meta.env.BASE_URL}smart-farm3d.glb`);
+  const gltf = useLoader(GLTFLoader, FARM_MODEL_PATH);
   const clonedScene = useMemo(() => {
-    const clone = scene.clone(true);
+    const clone = gltf.scene.clone(true);
     clone.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         child.castShadow = true;
@@ -49,7 +53,7 @@ function SmartFarmModel() {
       }
     });
     return clone;
-  }, [scene]);
+  }, [gltf]);
 
   return (
     <Center position={[0, 0, 0]} top>
@@ -119,24 +123,23 @@ interface CharacterProps {
 }
 
 function CharacterModel() {
-  const { scene } = useGLTF(`${import.meta.env.BASE_URL}player.glb`);
+  // เปลี่ยนมาใช้ GLTFLoader ตรงๆ ป้องกัน Drei useGLTF Cache Crash
+  const gltf = useLoader(GLTFLoader, PLAYER_MODEL_PATH);
 
   const adjustedScene = useMemo(() => {
-    const clone = scene.clone(true);
+    const clone = gltf.scene.clone(true);
 
-    // คำนวณขอบเขตขนาดจริงของ player.glb
+    // ปรับ Auto Scale และ Center ให้อยู่ระดับสายตากล้อง
     const box = new THREE.Box3().setFromObject(clone);
     const size = new THREE.Vector3();
     box.getSize(size);
 
-    // ปรับ Auto Scale ให้ความสูงอยู่ประมาณ 1.8 เมตร
     const maxDim = Math.max(size.x, size.y, size.z);
     if (maxDim > 0) {
       const targetScale = 1.8 / maxDim;
       clone.scale.setScalar(targetScale);
     }
 
-    // เปิด Shadow สำหรับทุก Mesh ในโมเดล
     clone.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         child.castShadow = true;
@@ -145,7 +148,7 @@ function CharacterModel() {
     });
 
     return clone;
-  }, [scene]);
+  }, [gltf]);
 
   return (
     <Center top>
@@ -398,9 +401,5 @@ const touchButtonStyle: React.CSSProperties = {
   cursor: 'pointer',
   userSelect: 'none',
 };
-
-// สั่ง Preload ไฟล์ 3D ล่วงหน้า
-useGLTF.preload(`${import.meta.env.BASE_URL}smart-farm3d.glb`);
-useGLTF.preload(`${import.meta.env.BASE_URL}player.glb`);
 
 export default SmartFarm3DGame;
