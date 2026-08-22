@@ -9,7 +9,7 @@ import { Maximize2, Minimize2, Eye, User } from 'lucide-react';
 const PLAYER_MODEL_PATH = '/player.glb';
 const FARM_MODEL_PATH = '/smart-farm3d.glb';
 
-// ฟังก์ชันสร้าง GLTFLoader ที่ฝัง DRACO Decoder มาให้เรียบร้อย
+// ฟังก์ชันสร้าง GLTFLoader ที่ฝัง DRACO Decoder
 const createCustomGLTFLoader = (loader: THREE.Loader) => {
   if (loader instanceof GLTFLoader) {
     const dracoLoader = new DRACOLoader();
@@ -138,16 +138,14 @@ interface CharacterModelProps {
 
 function CharacterModel({ isMoving }: CharacterModelProps) {
   const gltf = useLoader(GLTFLoader, PLAYER_MODEL_PATH, createCustomGLTFLoader);
-  const mixer = useMemo(() => new THREE.AnimationMixer(gltf.scene), [gltf.scene]);
+  const mixerRef = useRef<THREE.AnimationMixer | null>(null);
 
-  // ตั้งค่าขนาดและเปิดเงาโดยไม่โคลนฉากเพื่อรักษาการผูกกระดูก (Skelton Rigging)
   const scaleFactor = useMemo(() => {
     const box = new THREE.Box3().setFromObject(gltf.scene);
     const size = new THREE.Vector3();
     box.getSize(size);
-
     const maxDim = Math.max(size.x, size.y, size.z);
-    
+
     gltf.scene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         child.castShadow = true;
@@ -158,22 +156,31 @@ function CharacterModel({ isMoving }: CharacterModelProps) {
     return maxDim > 0 ? 1.8 / maxDim : 1;
   }, [gltf]);
 
-  // สั่งเล่น Animation จากไฟล์
   useEffect(() => {
     if (!gltf.animations || gltf.animations.length === 0) return;
 
-    // เล่นคลิปแอนิเมชัน
+    if (!mixerRef.current) {
+      mixerRef.current = new THREE.AnimationMixer(gltf.scene);
+    }
+
+    const mixer = mixerRef.current;
     const action = mixer.clipAction(gltf.animations[0]);
-    action.reset().fadeIn(0.2).play();
+
+    if (isMoving) {
+      action.reset().fadeIn(0.15).play();
+    } else {
+      action.fadeOut(0.15);
+    }
 
     return () => {
-      action.fadeOut(0.2);
+      action.fadeOut(0.15);
     };
-  }, [gltf, mixer]);
+  }, [isMoving, gltf]);
 
-  // อัปเดตการขยับเฟรมแอนิเมชันตลอดเวลา
   useFrame((_, delta) => {
-    mixer.update(delta);
+    if (mixerRef.current && isMoving) {
+      mixerRef.current.update(delta);
+    }
   });
 
   return (
