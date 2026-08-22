@@ -1,12 +1,23 @@
 import React, { useRef, useState, useEffect, Suspense, Component, ErrorInfo, ReactNode, useMemo } from 'react';
 import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
-import { Sky, useGLTF, Center } from '@react-three/drei';
+import { Sky, Center } from '@react-three/drei';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { Maximize2, Minimize2, Eye, User } from 'lucide-react';
 
 const PLAYER_MODEL_PATH = '/player.glb';
 const FARM_MODEL_PATH = '/smart-farm3d.glb';
+
+// ฟังก์ชันสร้าง GLTFLoader ที่ฝัง DRACO Decoder มาให้เรียบร้อย
+const createCustomGLTFLoader = (loader: THREE.Loader) => {
+  if (loader instanceof GLTFLoader) {
+    const dracoLoader = new DRACOLoader();
+    // ใช้ CDN Decoder ของ Google สำหรับการ Decode Draco Mesh
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+    loader.setDRACOLoader(dracoLoader);
+  }
+};
 
 // --------------------------------------------------
 // Error Boundary
@@ -43,7 +54,7 @@ class ThreeErrorBoundary extends Component<Props, State> {
 // 1. Smart Farm Model
 // --------------------------------------------------
 function SmartFarmModel() {
-  const gltf = useLoader(GLTFLoader, FARM_MODEL_PATH);
+  const gltf = useLoader(GLTFLoader, FARM_MODEL_PATH, createCustomGLTFLoader);
   const clonedScene = useMemo(() => {
     const clone = gltf.scene.clone(true);
     clone.traverse((child) => {
@@ -123,13 +134,11 @@ interface CharacterProps {
 }
 
 function CharacterModel() {
-  // เปลี่ยนมาใช้ GLTFLoader ตรงๆ ป้องกัน Drei useGLTF Cache Crash
-  const gltf = useLoader(GLTFLoader, PLAYER_MODEL_PATH);
+  const gltf = useLoader(GLTFLoader, PLAYER_MODEL_PATH, createCustomGLTFLoader);
 
   const adjustedScene = useMemo(() => {
     const clone = gltf.scene.clone(true);
 
-    // ปรับ Auto Scale และ Center ให้อยู่ระดับสายตากล้อง
     const box = new THREE.Box3().setFromObject(clone);
     const size = new THREE.Vector3();
     box.getSize(size);
