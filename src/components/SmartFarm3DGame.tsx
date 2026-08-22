@@ -39,9 +39,17 @@ class ThreeErrorBoundary extends Component<Props, State> {
 // 1. Smart Farm Model
 // --------------------------------------------------
 function SmartFarmModel() {
-  // ระบุ Path เต็มร่วมกับ import.meta.env.BASE_URL เพื่อป้องกัน Path หลุดบน Vercel
   const { scene } = useGLTF(`${import.meta.env.BASE_URL}smart-farm3d.glb`);
-  const clonedScene = useMemo(() => scene.clone(), [scene]);
+  const clonedScene = useMemo(() => {
+    const clone = scene.clone(true);
+    clone.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+    return clone;
+  }, [scene]);
 
   return (
     <Center position={[0, 0, 0]} top>
@@ -111,12 +119,39 @@ interface CharacterProps {
 }
 
 function CharacterModel() {
-  // 1. ระบุ Base URL ชัดเจน
-  // 2. ใช้ useMemo และ scene.clone() ป้องกัน Conflict ในระบบ Render
   const { scene } = useGLTF(`${import.meta.env.BASE_URL}player.glb`);
-  const clonedScene = useMemo(() => scene.clone(), [scene]);
 
-  return <primitive object={clonedScene} scale={[1, 1, 1]} position={[0, 0, 0]} />;
+  const adjustedScene = useMemo(() => {
+    const clone = scene.clone(true);
+
+    // คำนวณขอบเขตขนาดจริงของ player.glb
+    const box = new THREE.Box3().setFromObject(clone);
+    const size = new THREE.Vector3();
+    box.getSize(size);
+
+    // ปรับ Auto Scale ให้ความสูงอยู่ประมาณ 1.8 เมตร
+    const maxDim = Math.max(size.x, size.y, size.z);
+    if (maxDim > 0) {
+      const targetScale = 1.8 / maxDim;
+      clone.scale.setScalar(targetScale);
+    }
+
+    // เปิด Shadow สำหรับทุก Mesh ในโมเดล
+    clone.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    return clone;
+  }, [scene]);
+
+  return (
+    <Center top>
+      <primitive object={adjustedScene} />
+    </Center>
+  );
 }
 
 function FallbackPlayer() {
