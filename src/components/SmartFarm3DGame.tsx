@@ -1,21 +1,27 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Sky, useGLTF } from '@react-three/drei';
+import { Sky, useGLTF, Center } from '@react-three/drei';
 import * as THREE from 'three';
 import { Maximize2, Minimize2, Eye, User } from 'lucide-react';
 
 // --------------------------------------------------
-// 1. โหลดโมเดลจริงจากไฟล์ /smart-farm3d.glb (ไฟล์ในโฟลเดอร์ public)
+// 1. Smart Farm Model (พร้อมระบบจัดตำแหน่งและย่อ-ขยายอัตโนมัติ)
 // --------------------------------------------------
 function SmartFarmModel() {
   const { scene } = useGLTF('/smart-farm3d.glb');
-  return <primitive object={scene} position={[0, 0, 0]} scale={[1, 1, 1]} />;
+
+  return (
+    // Center จะดึงโมเดลมาไว้อยู่ตรงกลางฉาก [0,0,0] พอดี ไม่ว่าโมเดลเดิมจะลอยไปไหน
+    <Center position={[0, 0, 0]} top>
+      <primitive object={scene} />
+    </Center>
+  );
 }
 
 useGLTF.preload('/smart-farm3d.glb');
 
 // --------------------------------------------------
-// 2. Camera Controller (ระบบกล้องติดตามตัวละคร)
+// 2. Camera Controller
 // --------------------------------------------------
 interface CharacterCameraProps {
   characterRef: React.RefObject<THREE.Object3D | null>;
@@ -92,8 +98,8 @@ function Character({ playerRef, activeControls }: CharacterProps) {
   useFrame((_, delta) => {
     if (!playerRef.current) return;
 
-    const moveSpeed = 5 * delta;
-    const rotateSpeed = 2.8 * delta;
+    const moveSpeed = 6 * delta;
+    const rotateSpeed = 3 * delta;
 
     const isLeft = keys.current['KeyA'] || keys.current['ArrowLeft'] || activeControls.left;
     const isRight = keys.current['KeyD'] || keys.current['ArrowRight'] || activeControls.right;
@@ -107,7 +113,7 @@ function Character({ playerRef, activeControls }: CharacterProps) {
   });
 
   return (
-    <group ref={playerRef} position={[0, 0, 5]}>
+    <group ref={playerRef} position={[0, 0, 8]}>
       <mesh position={[0, 0.8, 0]} castShadow>
         <capsuleGeometry args={[0.3, 0.8, 4, 8]} />
         <meshStandardMaterial color="#2563eb" />
@@ -166,7 +172,7 @@ export function SmartFarm3DGame() {
         overflow: 'hidden',
       }}
     >
-      {/* UI แถบปุ่มบนขวา */}
+      {/* UI ด้านบนขวา */}
       <div style={{ position: 'absolute', top: 12, right: 12, zIndex: 20, display: 'flex', gap: '8px' }}>
         <button
           onClick={() => setCameraMode((prev) => (prev === '3rd' ? '1st' : '3rd'))}
@@ -259,10 +265,16 @@ export function SmartFarm3DGame() {
       {/* ฉาก 3D Canvas */}
       <Canvas shadows camera={{ position: [0, 5, -10], fov: 60 }}>
         <Sky sunPosition={[100, 30, 100]} />
-        <ambientLight intensity={1.2} />
-        <directionalLight position={[20, 30, 10]} intensity={1.5} castShadow />
+        <ambientLight intensity={1.5} />
+        <directionalLight position={[20, 30, 10]} intensity={2.0} castShadow />
 
-        {/* โหลดไฟล์โมเดลจริง smart-farm3d.glb */}
+        {/* พื้นหญ้ารองรับโมเดล */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
+          <planeGeometry args={[100, 100]} />
+          <meshStandardMaterial color="#166534" />
+        </mesh>
+
+        {/* โหลดโมเดลจริงพร้อมจัดตำแหน่งกึ่งกลาง */}
         <React.Suspense fallback={null}>
           <SmartFarmModel />
         </React.Suspense>
