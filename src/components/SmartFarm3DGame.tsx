@@ -1,11 +1,11 @@
-import React, { useRef, useState, useEffect, Suspense, Component, ErrorInfo, ReactNode } from 'react';
+import React, { useRef, useState, useEffect, Suspense, Component, ErrorInfo, ReactNode, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Sky, useGLTF, Center } from '@react-three/drei';
 import * as THREE from 'three';
 import { Maximize2, Minimize2, Eye, User } from 'lucide-react';
 
 // --------------------------------------------------
-// Error Boundary ช่วยป้องกันไม่ให้เว็บพังหาก 3D มีปัญหา
+// Error Boundary
 // --------------------------------------------------
 interface Props {
   children: ReactNode;
@@ -39,10 +39,13 @@ class ThreeErrorBoundary extends Component<Props, State> {
 // 1. Smart Farm Model
 // --------------------------------------------------
 function SmartFarmModel() {
-  const { scene } = useGLTF('/smart-farm3d.glb');
+  // ระบุ Path เต็มร่วมกับ import.meta.env.BASE_URL เพื่อป้องกัน Path หลุดบน Vercel
+  const { scene } = useGLTF(`${import.meta.env.BASE_URL}smart-farm3d.glb`);
+  const clonedScene = useMemo(() => scene.clone(), [scene]);
+
   return (
     <Center position={[0, 0, 0]} top>
-      <primitive object={scene} />
+      <primitive object={clonedScene} />
     </Center>
   );
 }
@@ -108,8 +111,12 @@ interface CharacterProps {
 }
 
 function CharacterModel() {
-  const { scene } = useGLTF('/player.glb');
-  return <primitive object={scene} scale={[1, 1, 1]} position={[0, 0, 0]} />;
+  // 1. ระบุ Base URL ชัดเจน
+  // 2. ใช้ useMemo และ scene.clone() ป้องกัน Conflict ในระบบ Render
+  const { scene } = useGLTF(`${import.meta.env.BASE_URL}player.glb`);
+  const clonedScene = useMemo(() => scene.clone(), [scene]);
+
+  return <primitive object={clonedScene} scale={[1, 1, 1]} position={[0, 0, 0]} />;
 }
 
 function FallbackPlayer() {
@@ -356,5 +363,9 @@ const touchButtonStyle: React.CSSProperties = {
   cursor: 'pointer',
   userSelect: 'none',
 };
+
+// สั่ง Preload ไฟล์ 3D ล่วงหน้า
+useGLTF.preload(`${import.meta.env.BASE_URL}smart-farm3d.glb`);
+useGLTF.preload(`${import.meta.env.BASE_URL}player.glb`);
 
 export default SmartFarm3DGame;
