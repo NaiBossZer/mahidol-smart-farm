@@ -1,18 +1,45 @@
-import React, { useRef, useState, useEffect, Suspense } from 'react';
+import React, { useRef, useState, useEffect, Suspense Component, ErrorInfo, ReactNode } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Sky, useGLTF, Center } from '@react-three/drei';
 import * as THREE from 'three';
 import { Maximize2, Minimize2, Eye, User } from 'lucide-react';
 
-// Import ไฟล์ GLB จากโฟลเดอร์ public หรือ src ตรงๆ เพื่อให้ Vercel หาไฟล์เจอ 100%
-import farmModelPath from '/public/smart-farm3d.glb?url';
-import playerModelPath from '/public/player.glb?url';
+// --------------------------------------------------
+// Error Boundary ช่วยป้องกันไม่ให้เว็บพังหาก 3D มีปัญหา
+// --------------------------------------------------
+interface Props {
+  children: ReactNode;
+  fallback?: ReactNode;
+}
+
+interface State {
+  hasError: boolean;
+}
+
+class ThreeErrorBoundary extends Component<Props, State> {
+  public state: State = { hasError: false };
+
+  public static getDerivedStateFromError(): State {
+    return { hasError: true };
+  }
+
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('3D Loading Error:', error, errorInfo);
+  }
+
+  public render() {
+    if (this.state.hasError) {
+      return this.props.fallback || null;
+    }
+    return this.props.children;
+  }
+}
 
 // --------------------------------------------------
 // 1. Smart Farm Model
 // --------------------------------------------------
 function SmartFarmModel() {
-  const { scene } = useGLTF(farmModelPath);
+  const { scene } = useGLTF('/smart-farm3d.glb');
   return (
     <Center position={[0, 0, 0]} top>
       <primitive object={scene} />
@@ -81,11 +108,10 @@ interface CharacterProps {
 }
 
 function CharacterModel() {
-  const { scene } = useGLTF(playerModelPath);
+  const { scene } = useGLTF('/player.glb');
   return <primitive object={scene} scale={[1, 1, 1]} position={[0, 0, 0]} />;
 }
 
-// ตัวละครสำรองทรงแคปซูล ป้องกันหน้าจอสีดำกรณีโมเดลมีปัญหา
 function FallbackPlayer() {
   return (
     <mesh position={[0, 1, 0]}>
@@ -145,9 +171,11 @@ function Character({ playerRef, activeControls }: CharacterProps) {
   return (
     <group ref={playerRef} position={[0, 0, 8]}>
       <group ref={animGroupRef}>
-        <Suspense fallback={<FallbackPlayer />}>
-          <CharacterModel />
-        </Suspense>
+        <ThreeErrorBoundary fallback={<FallbackPlayer />}>
+          <Suspense fallback={<FallbackPlayer />}>
+            <CharacterModel />
+          </Suspense>
+        </ThreeErrorBoundary>
       </group>
     </group>
   );
@@ -301,11 +329,13 @@ export function SmartFarm3DGame() {
           <meshStandardMaterial color="#166534" />
         </mesh>
 
-        <Suspense fallback={null}>
-          <SmartFarmModel />
-          <Character playerRef={playerRef} activeControls={touchControls} />
-        </Suspense>
+        <ThreeErrorBoundary>
+          <Suspense fallback={null}>
+            <SmartFarmModel />
+          </Suspense>
+        </ThreeErrorBoundary>
 
+        <Character playerRef={playerRef} activeControls={touchControls} />
         <CharacterCameraController characterRef={playerRef} cameraMode={cameraMode} />
       </Canvas>
     </div>
