@@ -31,16 +31,16 @@ function CharacterCameraController({ characterRef, cameraMode }: CharacterCamera
     const targetLookAt = new THREE.Vector3();
 
     if (cameraMode === '3rd') {
-      const offset = new THREE.Vector3(0, 3.5, -6);
+      const offset = new THREE.Vector3(0, 3.2, -5.5);
       offset.applyQuaternion(charQuaternion);
       targetCamPos.copy(charPos).add(offset);
       targetLookAt.copy(charPos).add(new THREE.Vector3(0, 1.5, 0));
     } else {
-      const eyeOffset = new THREE.Vector3(0, 1.7, 0.2);
+      const eyeOffset = new THREE.Vector3(0, 1.6, 0.2);
       eyeOffset.applyQuaternion(charQuaternion);
       targetCamPos.copy(charPos).add(eyeOffset);
 
-      const forward = new THREE.Vector3(0, 1.7, 5);
+      const forward = new THREE.Vector3(0, 1.6, 5);
       forward.applyQuaternion(charQuaternion);
       targetLookAt.copy(charPos).add(forward);
     }
@@ -57,7 +57,7 @@ function CharacterCameraController({ characterRef, cameraMode }: CharacterCamera
 }
 
 // --------------------------------------------------
-// 2. Character & Movement (ตัวละครและการบังคับ)
+// 2. Character & Movement (ตัวละครผู้เล่น)
 // --------------------------------------------------
 interface CharacterProps {
   playerRef: React.RefObject<THREE.Group | null>;
@@ -82,7 +82,7 @@ function Character({ playerRef, activeControls }: CharacterProps) {
   useFrame((_, delta) => {
     if (!playerRef.current) return;
 
-    const moveSpeed = 5 * delta;
+    const moveSpeed = 6 * delta;
     const rotateSpeed = 3 * delta;
 
     const isLeft = keys.current['KeyA'] || keys.current['ArrowLeft'] || activeControls.left;
@@ -97,21 +97,61 @@ function Character({ playerRef, activeControls }: CharacterProps) {
   });
 
   return (
-    <group ref={playerRef} position={[0, 0, 0]}>
-      <mesh position={[0, 1, 0]} castShadow>
-        <capsuleGeometry args={[0.4, 1, 4, 8]} />
-        <meshStandardMaterial color="#1E88E5" />
+    <group ref={playerRef} position={[0, 0, 8]}>
+      {/* ลำตัวละคร */}
+      <mesh position={[0, 0.9, 0]} castShadow>
+        <capsuleGeometry args={[0.35, 0.9, 4, 8]} />
+        <meshStandardMaterial color="#2563eb" />
       </mesh>
-      <mesh position={[0, 1.6, 0.2]} castShadow>
-        <boxGeometry args={[0.3, 0.2, 0.2]} />
-        <meshStandardMaterial color="#212121" />
+      {/* แว่นตา/ตาเพื่อบอกทิศทางหันหน้า */}
+      <mesh position={[0, 1.45, 0.2]} castShadow>
+        <boxGeometry args={[0.3, 0.15, 0.15]} />
+        <meshStandardMaterial color="#0f172a" />
       </mesh>
     </group>
   );
 }
 
 // --------------------------------------------------
-// 3. Main SmartFarm3DGame Component
+// 3. Greenhouse Structure (แบบจำลองโรงเรือนสมาร์ทฟาร์ม)
+// --------------------------------------------------
+function FarmGreenhouse() {
+  return (
+    <group position={[0, 0, 0]}>
+      {/* โครงสร้างพื้นโรงเรือน */}
+      <mesh position={[0, 0.05, 0]} receiveShadow>
+        <boxGeometry args={[12, 0.1, 20]} />
+        <meshStandardMaterial color="#64748b" />
+      </mesh>
+
+      {/* แปลงปลูกผักไฮโดรโปนิกส์ */}
+      {[-3, 0, 3].map((x, i) => (
+        <group key={i} position={[x, 0.5, 0]}>
+          <mesh receiveShadow castShadow>
+            <boxGeometry args={[1.8, 0.8, 16]} />
+            <meshStandardMaterial color="#334155" />
+          </mesh>
+          {/* ต้นผักสีเขียว */}
+          {[-6, -4, -2, 0, 2, 4, 6].map((z, j) => (
+            <mesh key={j} position={[0, 0.6, z]} castShadow>
+              <sphereGeometry args={[0.35, 8, 8]} />
+              <meshStandardMaterial color="#22c55e" />
+            </mesh>
+          ))}
+        </group>
+      ))}
+
+      {/* โครงเหล็กหลังคาโรงเรือน */}
+      <mesh position={[0, 3.5, 0]}>
+        <boxGeometry args={[12.2, 0.2, 20.2]} />
+        <meshStandardMaterial color="#e2e8f0" wireframe />
+      </mesh>
+    </group>
+  );
+}
+
+// --------------------------------------------------
+// 4. Main SmartFarm3DGame Component
 // --------------------------------------------------
 export function SmartFarm3DGame() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -126,13 +166,12 @@ export function SmartFarm3DGame() {
     right: false,
   });
 
-  // สลับ Fullscreen
   const toggleFullscreen = () => {
     if (!containerRef.current) return;
 
     if (!document.fullscreenElement) {
       containerRef.current.requestFullscreen().then(() => setIsFullscreen(true)).catch((err) => {
-        console.error("Error attempting to enable fullscreen:", err);
+        console.error("Fullscreen error:", err);
       });
     } else {
       document.exitFullscreen().then(() => setIsFullscreen(false));
@@ -153,58 +192,57 @@ export function SmartFarm3DGame() {
       style={{
         position: 'relative',
         width: '100%',
-        height: isFullscreen ? '100vh' : '500px',
-        backgroundColor: '#0f172a',
+        height: isFullscreen ? '100vh' : '550px',
+        backgroundColor: '#020617',
         borderRadius: isFullscreen ? '0' : '16px',
         overflow: 'hidden',
       }}
     >
-      {/* --- แถบปุ่มกดควบคุมด้านบน (UI Overlays) --- */}
+      {/* แถบปุ่มควบคุมมุมขวาบน */}
       <div
         style={{
           position: 'absolute',
           top: 12,
           right: 12,
-          zIndex: 10,
+          zIndex: 20,
           display: 'flex',
           gap: '8px',
         }}
       >
-        {/* ปุ่มสลับโหมดบุคคลที่ 1 / 3 */}
         <button
           onClick={() => setCameraMode((prev) => (prev === '3rd' ? '1st' : '3rd'))}
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            backgroundColor: 'rgba(15, 23, 42, 0.8)',
+            backgroundColor: 'rgba(15, 23, 42, 0.85)',
             color: '#ffffff',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            padding: '8px 12px',
-            borderRadius: '8px',
+            border: '1px solid rgba(255, 255, 255, 0.25)',
+            padding: '8px 14px',
+            borderRadius: '20px',
             cursor: 'pointer',
-            fontSize: '12px',
-            backdropFilter: 'blur(4px)',
+            fontSize: '13px',
+            fontWeight: 500,
+            backdropFilter: 'blur(6px)',
           }}
         >
           {cameraMode === '3rd' ? <User size={16} /> : <Eye size={16} />}
           <span>{cameraMode === '3rd' ? 'มุมมองบุคคลที่ 3' : 'มุมมองบุคคลที่ 1'}</span>
         </button>
 
-        {/* ปุ่ม Fullscreen */}
         <button
           onClick={toggleFullscreen}
           style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: 'rgba(15, 23, 42, 0.8)',
+            backgroundColor: 'rgba(15, 23, 42, 0.85)',
             color: '#ffffff',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            padding: '8px',
-            borderRadius: '8px',
+            border: '1px solid rgba(255, 255, 255, 0.25)',
+            padding: '8px 12px',
+            borderRadius: '20px',
             cursor: 'pointer',
-            backdropFilter: 'blur(4px)',
+            backdropFilter: 'blur(6px)',
           }}
           title="Fullscreen"
         >
@@ -212,21 +250,21 @@ export function SmartFarm3DGame() {
         </button>
       </div>
 
-      {/* --- ปุ่มควบคุมบนหน้าจอมือถือ (Touch D-Pad) --- */}
+      {/* ปุ่มควบคุม Touch Screen บนมือถือ */}
       <div
         style={{
           position: 'absolute',
           bottom: 20,
           right: 20,
-          zIndex: 10,
+          zIndex: 20,
           display: 'grid',
-          gridTemplateColumns: 'repeat(3, 48px)',
-          gridTemplateRows: 'repeat(2, 48px)',
+          gridTemplateColumns: 'repeat(3, 46px)',
+          gridTemplateRows: 'repeat(2, 46px)',
           gap: '6px',
-          backgroundColor: 'rgba(15, 23, 42, 0.6)',
+          backgroundColor: 'rgba(15, 23, 42, 0.65)',
           padding: '8px',
           borderRadius: '16px',
-          backdropFilter: 'blur(4px)',
+          backdropFilter: 'blur(6px)',
         }}
       >
         <div />
@@ -269,17 +307,20 @@ export function SmartFarm3DGame() {
         </button>
       </div>
 
-      {/* --- ฉาก 3D Canvas --- */}
+      {/* 3D Canvas Scene */}
       <Canvas shadows camera={{ position: [0, 5, -10], fov: 60 }}>
-        <Sky sunPosition={[100, 20, 100]} />
-        <ambientLight intensity={0.7} />
+        <Sky sunPosition={[100, 40, 100]} />
+        <ambientLight intensity={0.8} />
         <directionalLight position={[20, 30, 10]} intensity={1.2} castShadow />
 
-        {/* พื้นดินแปลงเกษตร */}
+        {/* พื้นหญ้ารอบโรงเรือน */}
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
           <planeGeometry args={[100, 100]} />
-          <meshStandardMaterial color="#388E3C" />
+          <meshStandardMaterial color="#15803d" />
         </mesh>
+
+        {/* โรงเรือนสมาร์ทฟาร์ม */}
+        <FarmGreenhouse />
 
         {/* ตัวละครผู้เล่น */}
         <Character playerRef={playerRef} activeControls={touchControls} />
@@ -292,9 +333,9 @@ export function SmartFarm3DGame() {
 }
 
 const touchButtonStyle: React.CSSProperties = {
-  width: '48px',
-  height: '48px',
-  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+  width: '46px',
+  height: '46px',
+  backgroundColor: 'rgba(255, 255, 255, 0.2)',
   color: '#ffffff',
   border: '1px solid rgba(255, 255, 255, 0.3)',
   borderRadius: '10px',
