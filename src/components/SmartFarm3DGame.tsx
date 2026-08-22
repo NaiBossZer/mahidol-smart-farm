@@ -5,7 +5,17 @@ import * as THREE from 'three';
 import { Maximize2, Minimize2, Eye, User } from 'lucide-react';
 
 // --------------------------------------------------
-// 1. Camera Controller (ระบบกล้องติดตามตัวละคร)
+// 1. โหลดโมเดลจริงจากไฟล์ /smart-farm3d.glb (ไฟล์ในโฟลเดอร์ public)
+// --------------------------------------------------
+function SmartFarmModel() {
+  const { scene } = useGLTF('/smart-farm3d.glb');
+  return <primitive object={scene} position={[0, 0, 0]} scale={[1, 1, 1]} />;
+}
+
+useGLTF.preload('/smart-farm3d.glb');
+
+// --------------------------------------------------
+// 2. Camera Controller (ระบบกล้องติดตามตัวละคร)
 // --------------------------------------------------
 interface CharacterCameraProps {
   characterRef: React.RefObject<THREE.Object3D | null>;
@@ -57,7 +67,7 @@ function CharacterCameraController({ characterRef, cameraMode }: CharacterCamera
 }
 
 // --------------------------------------------------
-// 2. Character & Movement (ตัวละครผู้เล่น)
+// 3. Character & Movement
 // --------------------------------------------------
 interface CharacterProps {
   playerRef: React.RefObject<THREE.Group | null>;
@@ -111,16 +121,6 @@ function Character({ playerRef, activeControls }: CharacterProps) {
 }
 
 // --------------------------------------------------
-// 3. Smart Farm GLB Model (โหลดจาก /smart-farm3d.glb)
-// --------------------------------------------------
-function SmartFarmModel() {
-  const { scene } = useGLTF('/smart-farm3d.glb');
-  return <primitive object={scene} position={[0, 0, 0]} />;
-}
-
-useGLTF.preload('/smart-farm3d.glb');
-
-// --------------------------------------------------
 // 4. Main Component
 // --------------------------------------------------
 export function SmartFarm3DGame() {
@@ -166,17 +166,8 @@ export function SmartFarm3DGame() {
         overflow: 'hidden',
       }}
     >
-      {/* ปุ่มควบคุมมุมขวาบน */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 12,
-          right: 12,
-          zIndex: 20,
-          display: 'flex',
-          gap: '8px',
-        }}
-      >
+      {/* UI แถบปุ่มบนขวา */}
+      <div style={{ position: 'absolute', top: 12, right: 12, zIndex: 20, display: 'flex', gap: '8px' }}>
         <button
           onClick={() => setCameraMode((prev) => (prev === '3rd' ? '1st' : '3rd'))}
           style={{
@@ -211,13 +202,12 @@ export function SmartFarm3DGame() {
             cursor: 'pointer',
             backdropFilter: 'blur(6px)',
           }}
-          title="Fullscreen"
         >
           {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
         </button>
       </div>
 
-      {/* D-Pad ปุ่มกดสำหรับมือถือ */}
+      {/* D-Pad ปุ่มกดมือถือ */}
       <div
         style={{
           position: 'absolute',
@@ -241,9 +231,7 @@ export function SmartFarm3DGame() {
           onTouchStart={() => setTouchControls((p) => ({ ...p, forward: true }))}
           onTouchEnd={() => setTouchControls((p) => ({ ...p, forward: false }))}
           style={touchButtonStyle}
-        >
-          ▲
-        </button>
+        >▲</button>
         <div />
         <button
           onMouseDown={() => setTouchControls((p) => ({ ...p, left: true }))}
@@ -251,44 +239,35 @@ export function SmartFarm3DGame() {
           onTouchStart={() => setTouchControls((p) => ({ ...p, left: true }))}
           onTouchEnd={() => setTouchControls((p) => ({ ...p, left: false }))}
           style={touchButtonStyle}
-        >
-          ◄
-        </button>
+        >◄</button>
         <button
           onMouseDown={() => setTouchControls((p) => ({ ...p, backward: true }))}
           onMouseUp={() => setTouchControls((p) => ({ ...p, backward: false }))}
           onTouchStart={() => setTouchControls((p) => ({ ...p, backward: true }))}
           onTouchEnd={() => setTouchControls((p) => ({ ...p, backward: false }))}
           style={touchButtonStyle}
-        >
-          ▼
-        </button>
+        >▼</button>
         <button
           onMouseDown={() => setTouchControls((p) => ({ ...p, right: true }))}
           onMouseUp={() => setTouchControls((p) => ({ ...p, right: false }))}
           onTouchStart={() => setTouchControls((p) => ({ ...p, right: true }))}
           onTouchEnd={() => setTouchControls((p) => ({ ...p, right: false }))}
           style={touchButtonStyle}
-        >
-          ►
-        </button>
+        >►</button>
       </div>
 
       {/* ฉาก 3D Canvas */}
       <Canvas shadows camera={{ position: [0, 5, -10], fov: 60 }}>
         <Sky sunPosition={[100, 30, 100]} />
-        <ambientLight intensity={0.9} />
-        <directionalLight position={[20, 30, 10]} intensity={1.2} castShadow />
+        <ambientLight intensity={1.2} />
+        <directionalLight position={[20, 30, 10]} intensity={1.5} castShadow />
 
-        {/* โมเดลสมาร์ทฟาร์มของจริง */}
+        {/* โหลดไฟล์โมเดลจริง smart-farm3d.glb */}
         <React.Suspense fallback={null}>
           <SmartFarmModel />
         </React.Suspense>
 
-        {/* ตัวละครผู้เล่น */}
         <Character playerRef={playerRef} activeControls={touchControls} />
-
-        {/* กล้องตามตัวละคร */}
         <CharacterCameraController characterRef={playerRef} cameraMode={cameraMode} />
       </Canvas>
     </div>
