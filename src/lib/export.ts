@@ -166,3 +166,4 @@ export async function exportPptx(a: Analysis, insight: InsightResult | null) {
 export function exportPdf() {
   window.print();
 }
+

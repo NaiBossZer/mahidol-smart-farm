@@ -1,9 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
 
-export const Route = createFileRoute("/survey")({
-  component: SurveyPage,
-});
+import { useState } from "react";
 
 // ⚠️ Web App URL ล่าสุดสำหรับรับข้อมูล
 const GOOGLE_SCRIPT_URL =
@@ -539,3 +535,5 @@ export function SurveyPage() {
     </div>
   );
 }
+
+

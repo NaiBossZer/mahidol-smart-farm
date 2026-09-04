@@ -470,3 +470,4 @@ export function ratingColor(mean5: number) {
 export function toMean5(stat: { mean: number; scaleMax: number }) {
   return (stat.mean / stat.scaleMax) * 5;
 }
+

@@ -1,9 +1,5 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-
-export const Route = createFileRoute("/login")({
-  component: LoginPage,
-});
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -15,7 +11,7 @@ export function LoginPage() {
     // ใส่ Logic รหัสผ่านของคุณที่นี่ (ตัวอย่าง: admin1234)
     if (password === "ENLP2517") {
       sessionStorage.setItem("dashboard_auth", "true");
-      navigate({ to: "/dashboard" });
+      navigate("/dashboard");
     } else {
       setError("รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
     }
@@ -82,3 +78,5 @@ export function LoginPage() {
     </div>
   );
 }
+
+

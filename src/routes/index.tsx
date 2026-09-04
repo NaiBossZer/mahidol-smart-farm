@@ -1,11 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
   Droplets, Thermometer, CloudRain, Radio, Wifi, Bell,
   MapPin, ChevronLeft, ChevronRight, Gauge
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import { SmartFarm3DGame } from "@/components/SmartFarm3DGame";
+import { LearningGameOnboarding } from "@/components/LearningGameOnboarding";
 
 // 1. ประกาศ Type ให้ TypeScript รู้จัก Custom Element <model-viewer>
 declare global {
@@ -28,10 +28,6 @@ declare global {
     }
   }
 }
-
-export const Route = createFileRoute("/")({
-  component: HomePage,
-});
 
 // ข้อมูล 6 ภาพสไลด์แบนเนอร์
 const HERO_SLIDES = [
@@ -199,7 +195,7 @@ export function HomePage() {
                 </div>
               </div>
 
-              <div className="w-[1px] h-8 sm:h-10 bg-white/20 shrink-0 hidden sm:block"></div>
+              <div className="w-px h-8 sm:h-10 bg-white/20 shrink-0 hidden sm:block"></div>
 
               <div className="hidden sm:block">
                 <span className="text-xs sm:text-sm font-semibold tracking-tight text-white block leading-snug">
@@ -286,7 +282,7 @@ export function HomePage() {
       <main className="grow">
 
         {/* ==================== HERO SLIDER BANNER SECTION ==================== */}
-        <section className="relative w-full h-[460px] sm:h-[500px] lg:h-[540px] overflow-hidden bg-[#0B2B1E]">
+        <section className="relative w-full h-115 sm:h-125 lg:h-135 overflow-hidden bg-[#0B2B1E]">
           {HERO_SLIDES.map((slide, index) => (
             <div
               key={slide.id}
@@ -298,7 +294,7 @@ export function HomePage() {
                 className="absolute inset-0 bg-cover bg-center transition-transform duration-10000 transform scale-105"
                 style={{ backgroundImage: `url('${encodeURI(slide.image)}')` }}
               >
-                <div className="absolute inset-0 bg-[#14432E]/55 bg-gradient-to-t from-[#0B2B1E] via-[#1B6B3C]/55 to-black/40" />
+                <div className="absolute inset-0 bg-[#14432E]/55 bg-linear-to-t from-[#0B2B1E] via-[#1B6B3C]/55 to-black/40" />
               </div>
 
               <div className="relative z-20 max-w-5xl mx-auto h-full px-6 sm:px-12 flex flex-col justify-center items-center text-center text-white space-y-4">
@@ -398,7 +394,8 @@ export function HomePage() {
 
 // --- COMPONENT: 3D Media Section (รวมโหมด 360° และ เดินชมแปลงไว้ที่เดียว) ---
 function SmartFarmMediaSection() {
-  const [activeTab, setActiveTab] = useState<"360" | "walk">("360");
+  // เปิดภารกิจการเรียนรู้เป็นค่าเริ่มต้น เพื่อให้ผู้ใช้เห็นเกมทันที
+  const [activeTab, setActiveTab] = useState<"360" | "walk">("walk");
   const [isPlayingAnimation, setIsPlayingAnimation] = useState(true);
 
   return (
@@ -447,7 +444,7 @@ function SmartFarmMediaSection() {
         </div>
 
         {/* 3D Display Container */}
-        <div className="relative w-full h-[500px] sm:h-[560px] rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-inner">
+        <div className="relative w-full h-125 sm:h-140 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-inner">
 
           {/* TAB 1: 3D MODEL VIEWER (360) */}
           {activeTab === "360" ? (
@@ -497,7 +494,7 @@ function SmartFarmMediaSection() {
           ) : (
             /* TAB 2: WALKTHROUGH 3D GAME */
             <div className="w-full h-full relative">
-              <SmartFarm3DGame />
+              <LearningGameOnboarding />
             </div>
           )}
 
@@ -711,7 +708,7 @@ function SmartFarmDataVisualization() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-sky-50 to-blue-50/50 border border-sky-200/60 p-6 rounded-2xl shadow-sm space-y-2">
+        <div className="bg-linear-to-br from-sky-50 to-blue-50/50 border border-sky-200/60 p-6 rounded-2xl shadow-sm space-y-2">
           <p className="text-xs font-semibold tracking-wider text-[#0369A1] flex items-center gap-1.5">
             <Wifi className="w-3.5 h-3.5" /> จุดติดตั้งเซนเซอร์ทั้งหมด
           </p>
@@ -721,7 +718,7 @@ function SmartFarmDataVisualization() {
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-emerald-50 to-teal-50/50 border border-emerald-200/60 p-6 rounded-2xl shadow-sm space-y-2">
+        <div className="bg-linear-to-br from-emerald-50 to-teal-50/50 border border-emerald-200/60 p-6 rounded-2xl shadow-sm space-y-2">
           <p className="text-xs font-semibold tracking-wider text-[#1B6B3C] flex items-center gap-1.5">
             <Droplets className="w-3.5 h-3.5" /> ประหยัดปริมาณน้ำได้
           </p>
@@ -731,7 +728,7 @@ function SmartFarmDataVisualization() {
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-amber-50 to-yellow-50/50 border border-amber-200/60 p-6 rounded-2xl shadow-sm space-y-2">
+        <div className="bg--to-br from-amber-50 to-yellow-50/50 border border-amber-200/60 p-6 rounded-2xl shadow-sm space-y-2">
           <p className="text-xs font-semibold tracking-wider text-amber-800 flex items-center gap-1.5">
             <CloudRain className="w-3.5 h-3.5" /> ความถี่การส่งข้อมูล
           </p>
@@ -767,7 +764,7 @@ function SmartFarmDataVisualization() {
           </div>
         </div>
 
-        <div className="h-[320px] w-full pt-4">
+        <div className="h-80 w-full pt-4">
           <ResponsiveContainer width="100%" height="100%">
             {activeTab === "moisture" ? (
               <LineChart data={soilMoistureData}>
@@ -797,3 +794,5 @@ function SmartFarmDataVisualization() {
     </section>
   );
 }
+
+
