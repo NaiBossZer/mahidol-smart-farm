@@ -68,6 +68,7 @@ function processNvrSnapshots() {
   // ── Upload: Supabase primary, GitHub fallback ──────────────────────
   let imageUrl = null;
   let uploadedTo = null;
+  let cctvEventId = null;
 
   const storagePath = makeSupabasePath(candidate.camera, candidate.date, candidate.filename);
 
@@ -89,6 +90,24 @@ function processNvrSnapshots() {
     }
   }
 
+  // ── Record event in Supabase ──────────────────────────────────────
+  try {
+    cctvEventId = insertCctvEvent({
+      cameraId: candidate.camera,
+      eventType: candidate.eventType || "NVR Event",
+      eventTime: candidate.date,
+      batchStart: start,
+      batchEnd: end,
+      snapshotPath: storagePath,
+      snapshotUrl: imageUrl,
+      emailMessageId: candidate.messageId
+    });
+    console.log("[DB] cctv_events INSERT OK: " + cctvEventId);
+  } catch (dbErr) {
+    console.error("[DB] cctv_events INSERT failed: " + dbErr.message);
+    return;
+  }
+
   // ── LINE notification ──────────────────────────────────────────────
   const text =
     "🚨 SMART FARM ALERT\n\n" +
@@ -100,8 +119,10 @@ function processNvrSnapshots() {
 
   try {
     sendLineTextAndImage(text, imageUrl);
+    if (cctvEventId) updateCctvEventStatus(cctvEventId, "sent", null);
   } catch (lineErr) {
     console.error("[LINE] Push failed: " + lineErr.message);
+    if (cctvEventId) updateCctvEventStatus(cctvEventId, "failed", lineErr.message);
     return;
   }
 
@@ -268,7 +289,8 @@ function findBestSnapshot(start, end) {
           date:           date,
           attachment:     attachment.copyBlob(),
           attachmentSize: Number(attachment.getSize() || 0),
-          filename:       makeFilename(camera, date, name)
+          filename:       makeFilename(camera, date, name),
+          messageId:       message.getId()
         };
 
         // Select newest; on tie, prefer largest file (likely higher quality)
@@ -461,4 +483,101 @@ function requireProperty(props, name) {
 
 function formatDate(date, timezone) {
   return Utilities.formatDate(date, timezone, "yyyy-MM-dd HH:mm:ss");
+}
+
+
+// ─── cctv_events persistence ─────────────────────────────────────────
+function insertCctvEvent(data) {
+  const props = PropertiesService.getScriptProperties();
+  const baseUrl = requireProperty(props, "SUPABASE_URL").replace(/\\/$/, "");
+  const serviceKey = requireProperty(props, "SUPABASE_SERVICE_ROLE_KEY");
+
+  const payload = {
+    camera_id: data.cameraId,
+    event_type: data.eventType || null,
+    event_time: data.eventTime ? data.eventTime.toISOString() : null,
+    batch_start: data.batchStart ? data.batchStart.toISOString() : null,
+    batch_end: data.batchEnd ? data.batchEnd.toISOString() : null,
+    snapshot_path: data.snapshotPath || null,
+    snapshot_url: data.snapshotUrl || null,
+    email_message_id: data.emailMessageId || null,
+    processed_at: null,
+    notification_status: "pending"
+  };
+
+  const response = UrlFetchApp.fetch(baseUrl + "/rest/v1/cctv_events", {
+    method: "post",
+    contentType: "application/json",
+    headers: {
+      apikey: serviceKey,
+      Authorization: "Bearer " + serviceKey,
+      Prefer: "return=representation"
+    },
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  });
+
+  const code = response.getResponseCode();
+  const body = response.getContentText();
+  if (code < 200 || code >= 300) {
+    throw new Error("cctv_events insert failed: HTTP " + code + " " + body);
+  }
+
+  const rows = JSON.parse(body);
+  if (!rows || !rows.length || !rows[0].id) {
+    throw new Error("cctv_events insert returned no id");
+  }
+  return rows[0].id;
+}
+
+function updateCctvEventStatus(eventId, status, errorMessage) {
+  const props = PropertiesService.getScriptProperties();
+  const baseUrl = requireProperty(props, "SUPABASE_URL").replace(/\\/$/, "");
+  const serviceKey = requireProperty(props, "SUPABASE_SERVICE_ROLE_KEY");
+
+  const payload = {
+    notification_status: status,
+    notification_error: errorMessage || null,
+    processed_at: new Date().toISOString()
+  };
+
+  const response = UrlFetchApp.fetch(
+    baseUrl + "/rest/v1/cctv_events?id=eq." + encodeURIComponent(eventId),
+    {
+      method: "patch",
+      contentType: "application/json",
+      headers: {
+        apikey: serviceKey,
+        Authorization: "Bearer " + serviceKey,
+        Prefer: "return=minimal"
+      },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    }
+  );
+
+  const code = response.getResponseCode();
+  if (code < 200 || code >= 300) {
+    console.error("[DB] cctv_events status update failed: HTTP " + code + " " + response.getContentText());
+  } else {
+    console.log("[DB] cctv_events status: " + status);
+  }
+}
+
+function testInsertCctvEvent() {
+  const now = new Date();
+  const id = insertCctvEvent({
+    cameraId: 2,
+    eventType: "TEST",
+    eventTime: now,
+    batchStart: new Date(now.getTime() - 5 * 60 * 1000),
+    batchEnd: now,
+    snapshotPath: "test/smart-farm-test.txt",
+    snapshotUrl: "https://rdnbodadxvvykfrxmeqn.supabase.co/storage/v1/object/public/cctv-snapshots/test/smart-farm-test.txt",
+    emailMessageId: "TEST-" + now.getTime()
+  });
+  updateCctvEventStatus(id, "sent", null);
+  console.log("=== CCTV EVENT TEST OK ===");
+  console.log("Event ID: " + id);
+  return id;
 }
