@@ -1,74 +1,135 @@
-# Smart Farm: Gmail -> GitHub Snapshot -> LINE
+# Smart Farm: Gmail → Supabase Storage → LINE
 
-V1:
+**V2** — Supabase Storage primary; GitHub fallback.
+
 - CCTV2 and CCTV3 only
 - Gmail is the NVR trigger
 - One LINE alert per completed 5-minute window
 - The newest supported JPG/JPEG/PNG snapshot in that window is selected
-- Snapshot is uploaded to this public GitHub repository
-- LINE receives one text + one image
+- Snapshot is uploaded to **Supabase Storage** (primary)
+- If Supabase fails, falls back to GitHub (`raw.githubusercontent.com`)
+- LINE receives one text + one image per batch
 
-## Important privacy note
+---
 
-The repository `NaiBossZer/mahidol-smart-farm` is currently public. Because LINE Image Messages need a public HTTPS URL, the uploaded snapshots are publicly accessible through `raw.githubusercontent.com`.
+## Script Properties
 
-Do not use this design for sensitive/private camera images unless public exposure is acceptable.
+Set these in **Apps Script → Project Settings → Script Properties**:
 
-## Apps Script Script Properties
+| Property | Description | Example |
+|---|---|---|
+| `GMAIL_QUERY_FROM` | NVR sender email | `apsun.0144@gmail.com` |
+| `SUPABASE_URL` | Supabase project URL | `https://abcdefgh.supabase.co` |
+| `SUPABASE_SERVICE_ROLE_KEY` | service_role key (server-side only) | `eyJhbGci...` |
+| `GITHUB_TOKEN` | GitHub fine-grained token (fallback) | `github_pat_...` |
+| `GITHUB_OWNER` | GitHub username | `NaiBossZer` |
+| `GITHUB_REPO` | Repository name | `mahidol-smart-farm` |
+| `GITHUB_BRANCH` | Branch | `main` |
+| `LINE_CHANNEL_ID` | LINE Messaging API Channel ID | `2007...` |
+| `LINE_CHANNEL_SECRET` | LINE Channel Secret | `abc123...` |
+| `LINE_GROUP_ID` | Target LINE Group ID | `C0123...` |
+| `BATCH_MINUTES` | Batch window size in minutes | `5` |
+| `TIMEZONE` | Timezone string | `Asia/Bangkok` |
 
-Set these in Apps Script -> Project Settings -> Script properties:
+> **Security**: `SUPABASE_SERVICE_ROLE_KEY` and `LINE_CHANNEL_SECRET` are stored only in Apps Script Script Properties.  
+> They are **never** committed to GitHub.
 
-- GMAIL_QUERY_FROM = the NVR sender email
-- GITHUB_TOKEN = fine-grained GitHub token with Contents: Read and write on this repository only
-- GITHUB_OWNER = NaiBossZer
-- GITHUB_REPO = mahidol-smart-farm
-- GITHUB_BRANCH = main
-- LINE_CHANNEL_ID = your Channel ID
-- LINE_CHANNEL_SECRET = your Channel Secret
-- LINE_GROUP_ID = your LINE Group ID
-- BATCH_MINUTES = 5
-- TIMEZONE = Asia/Bangkok
+---
 
-Do not store any of these secrets in GitHub.
+## Test Functions
 
-## Test
+### PHASE 1 — Supabase Storage Test
 
-Copy `Code.gs` into the Apps Script project and save.
+```
+testSupabaseUpload()
+```
 
-Run:
+Finds the newest CCTV2/CCTV3 snapshot from the last hour, uploads it to `cctv-snapshots/test/...` in Supabase, and logs the public URL.  
+**Does NOT send LINE.** Open the URL in a browser to verify.
 
-`testSendLatestImageToLine`
+### PHASE 2 — LINE Image Test
 
-This finds the newest supported snapshot from CCTV2/CCTV3 in the last hour, uploads it to GitHub, and sends it to the configured LINE group.
+```
+testSendLatestImageToLine()
+```
 
-After that, run:
+Same as PHASE 1, but also sends the text + image to your LINE group.
 
-`installTrigger`
+---
 
-The automatic job is `processNvrSnapshots`, scheduled every minute.
+## Supabase Storage Path Format
 
-## Gmail requirements
+```
+cctv-snapshots/
+  YYYY/
+    MM/
+      DD/
+        CCTV2/
+          YYYYMMDD_HHmmss.jpg
+        CCTV3/
+          YYYYMMDD_HHmmss.jpg
+```
+
+Test uploads go to:
+```
+cctv-snapshots/test/YYYY/MM/DD/CCTV{N}/YYYYMMDD_HHmmss.jpg
+```
+
+Public URL format:
+```
+https://<project-ref>.supabase.co/storage/v1/object/public/cctv-snapshots/<path>
+```
+
+---
+
+## Gmail Requirements
 
 The NVR email body must contain:
 
-`<Input1>2</Input1>` or `<Input1>3</Input1>`
-
-and an attached JPEG/JPG/PNG.
-
-If the NVR sends BMP instead, this V1 does not convert it; LINE Image Messages require JPEG or PNG.
-
-## GitHub image URL
-
-Images are stored under:
-
-`snapshots/CCTV2_YYYYMMDD_HHMMSS.jpg`
-
+```xml
+<Input1>2</Input1>
+```
 or
+```xml
+<Input1>3</Input1>
+```
 
-`snapshots/CCTV3_YYYYMMDD_HHMMSS.jpg`
+and an attached JPEG/JPG/PNG file.
 
-The public image URL is:
+If a BMP or unsupported format is attached, it is **skipped with a log entry** — other supported images in the same email are still processed.
 
-`https://raw.githubusercontent.com/NaiBossZer/mahidol-smart-farm/main/snapshots/FILE.jpg`
+---
 
-GitHub's repository Contents API accepts Base64 file content and requires repository Contents write permission for uploads.
+## Automation Trigger
+
+Run `installTrigger()` once. This installs a 1-minute time-based trigger for `processNvrSnapshots()`.
+
+Each execution:
+1. Calculates the last completed 5-minute batch window
+2. Skips if already processed (`LAST_SENT_BUCKET` property)
+3. Searches Gmail for NVR emails in that window
+4. Parses camera from `<Input1>` XML
+5. Selects the newest supported snapshot
+6. Uploads to Supabase (or GitHub fallback)
+7. Sends one LINE text + image message
+
+---
+
+## Upload Priority
+
+```
+Supabase Storage (primary)
+    ↓ fails
+GitHub raw.githubusercontent.com (fallback)
+    ↓ also fails
+Skip LINE notification, log error
+```
+
+---
+
+## Privacy Note
+
+The `cctv-snapshots` bucket is **PUBLIC** in TEST MODE.  
+Any person with the URL can view the CCTV image.
+
+For production: switch to a private bucket and generate signed URLs before sending to LINE.
