@@ -229,6 +229,9 @@ export function HomePage() {
               <Link to="/survey" className="hover:text-[#F5B800] transition-colors py-1">
                 แบบสอบถาม
               </Link>
+              <Link to="/smart-dashboard" className="hover:text-[#F5B800] transition-colors py-1">
+                Smart Farm Dashboard
+              </Link>
               <Link to="/dashboard" className="hover:text-[#F5B800] transition-colors py-1">
                 สรุปผลแบบประเมินความพึงพอใจ
               </Link>
@@ -269,6 +272,9 @@ export function HomePage() {
               </button>
               <Link to="/survey" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg hover:bg-white/10 text-white">
                 แบบสอบถาม
+              </Link>
+              <Link to="/smart-dashboard" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg hover:bg-white/10 text-white">
+                Smart Farm Dashboard
               </Link>
               <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg hover:bg-white/10 text-white">
                 สรุปผลแบบประเมินความพึงพอใจ
