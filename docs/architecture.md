@@ -165,7 +165,7 @@ The system never crashes on a single bad email.
 | LINE Channel Secret | `LINE_CHANNEL_SECRET` | Apps Script Script Properties only |
 | GitHub token | `GITHUB_TOKEN` | Apps Script Script Properties only |
 | Supabase anon key | Not used by Apps Script | N/A |
-| Frontend (Lovable) | No Supabase Storage access | N/A |
+| Frontend | No Supabase Storage access | N/A |
 
 **Rule:** No secrets in source code or GitHub repository.
 
