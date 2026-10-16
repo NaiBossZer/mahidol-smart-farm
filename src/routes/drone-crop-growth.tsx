@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -53,10 +53,12 @@ export function DroneCropGrowthPage() {
   const [beforeId, setBeforeId] = useState("");
   const [afterId, setAfterId] = useState("");
   const [feedback, setFeedback] = useState("");
+  const imagesRef = useRef<DroneImage[]>([]);
+  imagesRef.current = images;
 
   useEffect(() => {
-    return () => images.forEach((image) => URL.revokeObjectURL(image.url));
-  }, [images]);
+    return () => imagesRef.current.forEach((image) => URL.revokeObjectURL(image.url));
+  }, []);
 
   const beforeImage = useMemo(
     () => images.find((image) => image.id === beforeId),
