@@ -212,6 +212,10 @@ export function HomePage() {
               <Link to="/" className="hover:text-[#F5B800] transition-colors py-1">
                 หน้าแรก
               </Link>
+              <Link to="/drone" className="inline-flex items-center gap-1.5 rounded-lg border border-[#F5B800]/40 bg-white/5 px-3 py-1.5 font-semibold text-[#F5B800] transition-colors hover:bg-white/10">
+                <span aria-hidden="true">✦</span>
+                ติดตามการเติบโตด้วยโดรน
+              </Link>
               <button
                 type="button"
                 onClick={() => scrollToSection("cards-section")}
@@ -252,6 +256,9 @@ export function HomePage() {
             <div className="xl:hidden mt-3 pt-3 border-t border-white/15 space-y-2 text-sm font-normal">
               <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg hover:bg-white/10 text-white">
                 หน้าแรก
+              </Link>
+              <Link to="/drone" onClick={() => setIsMobileMenuOpen(false)} className="block rounded-lg border border-[#F5B800]/40 bg-white/5 px-3 py-2 font-semibold text-[#F5B800] hover:bg-white/10">
+                ✦ ติดตามการเติบโตด้วยโดรน
               </Link>
               <button
                 type="button"
