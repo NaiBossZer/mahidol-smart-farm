@@ -79,26 +79,22 @@ export function DroneCropGrowthPage() {
       file,
       url: URL.createObjectURL(file),
     }));
-    setImages((current) => {
-      const merged = [...current, ...next];
-      if (!beforeId && merged[0]) setBeforeId(merged[0].id);
-      if ((!afterId || afterId === beforeId) && merged.length > 1) {
-        setAfterId(merged[merged.length - 1].id);
-      }
-      return merged;
-    });
+    const merged = [...images, ...next];
+    setImages(merged);
+    if (!beforeId && merged[0]) setBeforeId(merged[0].id);
+    if ((!afterId || afterId === beforeId) && merged.length > 1) {
+      setAfterId(merged[merged.length - 1].id);
+    }
     setFeedback(accepted.length ? `เพิ่มภาพ ${accepted.length} ไฟล์แล้ว (ยังไม่อัปโหลดไปยังเซิร์ฟเวอร์)` : "ไม่พบไฟล์ภาพที่รองรับ");
   };
 
   const removeImage = (id: string) => {
-    setImages((current) => {
-      const target = current.find((image) => image.id === id);
-      if (target) URL.revokeObjectURL(target.url);
-      const remaining = current.filter((image) => image.id !== id);
-      if (beforeId === id) setBeforeId(remaining[0]?.id ?? "");
-      if (afterId === id) setAfterId(remaining[1]?.id ?? remaining[0]?.id ?? "");
-      return remaining;
-    });
+    const target = images.find((image) => image.id === id);
+    if (target) URL.revokeObjectURL(target.url);
+    const remaining = images.filter((image) => image.id !== id);
+    setImages(remaining);
+    if (beforeId === id) setBeforeId(remaining[0]?.id ?? "");
+    if (afterId === id) setAfterId(remaining[1]?.id ?? remaining[0]?.id ?? "");
   };
 
   const saveSurveyDraft = () => {
