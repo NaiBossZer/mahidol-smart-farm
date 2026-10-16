@@ -78,4 +78,4 @@ https://<project-ref>.supabase.co/storage/v1/object/public/cctv-snapshots/<path>
 
 - The `service_role` key is stored only in Apps Script Script Properties
 - It is **never** committed to GitHub or exposed to the frontend
-- The Lovable frontend (`src/`) does NOT have access to Supabase Storage or `cctv_events`
+- The web frontend (`src/`) does NOT have access to Supabase Storage or `cctv_events`
