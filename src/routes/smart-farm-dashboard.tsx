@@ -1,8 +1,7 @@
 import { useState } from "react";
 import {
-  Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, CalendarDays,
-  Camera, CheckCircle2, Clock3, CloudSun, Droplets, Gauge, Leaf,
-  RefreshCw, Thermometer, Wifi, WifiOff, Wind, Zap
+  Activity, AlertTriangle, CalendarDays, Camera, Clock3, CloudSun,
+  Droplets, Gauge, Leaf, RefreshCw, Thermometer, Wifi, WifiOff
 } from "lucide-react";
 
 type Period = "24h" | "7d" | "30d";
