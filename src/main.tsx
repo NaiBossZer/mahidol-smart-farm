@@ -6,6 +6,7 @@ import { HomePage } from "./routes/index";
 import { LoginPage } from "./routes/login";
 import { DashboardPage } from "./routes/dashboard";
 import { SurveyPage } from "./routes/survey";
-function App() { return <BrowserRouter><Routes><Route path="/" element={<HomePage />} /><Route path="/login" element={<LoginPage />} /><Route path="/dashboard" element={<DashboardPage />} /><Route path="/survey" element={<SurveyPage />} /><Route path="*" element={<Navigate to="/" replace />} /></Routes></BrowserRouter>; }
+import { SmartFarmDashboardPage } from "./routes/smart-farm-dashboard";
+function App() { return <BrowserRouter><Routes><Route path="/" element={<HomePage />} /><Route path="/login" element={<LoginPage />} /><Route path="/dashboard" element={<DashboardPage />} /><Route path="/survey" element={<SurveyPage />} /><Route path="/smart-farm-dashboard" element={<SmartFarmDashboardPage />} /><Route path="*" element={<Navigate to="/" replace />} /></Routes></BrowserRouter>; }
 createRoot(document.getElementById("root")!).render(<React.StrictMode><App /></React.StrictMode>);
 
